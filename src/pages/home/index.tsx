@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Text } from 'react-native';
+import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 import {
@@ -15,6 +15,8 @@ import {
   CourseTitle,
   CourseImage,
   CourseLessons,
+  BottomMenu,
+  TextMenu,
 } from './styles';
 import logo from '../../assets/logo.png';
 
@@ -64,11 +66,6 @@ const Home: React.FC = () => {
     },
   ];
 
-  const renderItem = ({ item }) => (
-    <CourseCard>
-      <Text>{item.title}</Text>
-    </CourseCard>
-  );
   return (
     <>
       <NavegationBar>
@@ -82,19 +79,18 @@ const Home: React.FC = () => {
           placeholderTextColor="#C4C4D1"
         />
       </InputView>
-
       <CoursesContent>
         <CoursesBar>
           <Title>Categorias</Title>
           <InfoText>43 cursos</InfoText>
         </CoursesBar>
       </CoursesContent>
+
       <CourseList
         numColumns={2}
         contentContainerStyle={{
-          alignItems: 'stretch',
-          marginTop: -10,
-          paddingBottom: 232,
+          paddingBottom: 25,
+          marginBottom: 0,
           paddingLeft: 16,
           backgroundColor: '#F0EDF5',
         }}
@@ -108,6 +104,14 @@ const Home: React.FC = () => {
           </CourseCard>
         )}
       />
+      <BottomMenu>
+        <TextMenu>
+          <Icon name="home" color="#ff6680" size={20} /> Home
+        </TextMenu>
+        <TextMenu>
+          <Icon name="hearto" color="#ff6680" size={20} /> Salvos
+        </TextMenu>
+      </BottomMenu>
     </>
   );
 };

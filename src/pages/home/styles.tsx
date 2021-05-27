@@ -84,3 +84,19 @@ export const CourseLessons = styled.Text`
 `;
 
 export const CourseList = styled(FlatList as new () => FlatList)``;
+
+export const BottomMenu = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  height: 73px;
+  border: 1px solid #f0edf5;
+  background-color: #ffff;
+`;
+
+export const TextMenu = styled.Text`
+  font-family: 'Roboto-Medium';
+  margin: auto;
+  align-items: center;
+  font-size: 15px;
+  color: #ff6680;
+`;
