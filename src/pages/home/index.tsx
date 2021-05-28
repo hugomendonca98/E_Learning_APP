@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -6,7 +6,6 @@ import {
   NavegationBar,
   InputView,
   InputSearch,
-  CoursesContent,
   CoursesBar,
   Title,
   InfoText,
@@ -66,6 +65,15 @@ const Home: React.FC = () => {
     },
   ];
 
+  const [search, setSearch] = useState('');
+
+  const filterCourse =
+    search !== ''
+      ? DATA.filter(course =>
+          course.title.toLowerCase().includes(search.toLowerCase()),
+        )
+      : DATA;
+
   return (
     <>
       <NavegationBar>
@@ -77,24 +85,27 @@ const Home: React.FC = () => {
         <InputSearch
           placeholder="Busque um curso"
           placeholderTextColor="#C4C4D1"
+          onChangeText={text => setSearch(text)}
+          value={search}
         />
       </InputView>
-      <CoursesContent>
-        <CoursesBar>
-          <Title>Categorias</Title>
-          <InfoText>43 cursos</InfoText>
-        </CoursesBar>
-      </CoursesContent>
 
       <CourseList
         numColumns={2}
+        columnWrapperStyle={{ paddingLeft: 17 }}
+        ListHeaderComponent={
+          <CoursesBar>
+            <Title>Categorias</Title>
+            <InfoText>43 cursos</InfoText>
+          </CoursesBar>
+        }
         contentContainerStyle={{
           paddingBottom: 25,
-          marginBottom: 0,
-          paddingLeft: 16,
           backgroundColor: '#F0EDF5',
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
         }}
-        data={DATA}
+        data={filterCourse}
         keyExtractor={course => course.id}
         renderItem={({ item: course }) => (
           <CourseCard>

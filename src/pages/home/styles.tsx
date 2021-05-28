@@ -28,17 +28,14 @@ export const InputSearch = styled.TextInput`
   margin-right: 10px;
 `;
 
-export const CoursesContent = styled.View`
-  background: #f0edf5;
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
-`;
-
 export const CoursesBar = styled.View`
   flex-direction: row;
+  background-color: #f0edf5;
   justify-content: space-between;
   align-items: center;
   padding: 20px;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
 `;
 
 export const Title = styled.Text`
