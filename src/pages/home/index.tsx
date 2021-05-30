@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
+import { useNavigation } from '@react-navigation/native';
 import {
   NavegationBar,
   InputView,
@@ -66,6 +67,7 @@ const Home: React.FC = () => {
   ];
 
   const [search, setSearch] = useState('');
+  const { navigate } = useNavigation();
 
   const filterCourse =
     search !== ''
@@ -119,7 +121,7 @@ const Home: React.FC = () => {
         <TextMenu>
           <Icon name="home" color="#ff6680" size={20} /> Home
         </TextMenu>
-        <TextMenu>
+        <TextMenu onPress={() => navigate('MyCourses')}>
           <Icon name="hearto" color="#ff6680" size={20} /> Salvos
         </TextMenu>
       </BottomMenu>
