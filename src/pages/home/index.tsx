@@ -17,6 +17,8 @@ import {
   CourseLessons,
   BottomMenu,
   TextMenu,
+  ButtonText,
+  SavedList,
 } from './styles';
 import logo from '../../assets/logo.png';
 
@@ -66,7 +68,21 @@ const Home: React.FC = () => {
     },
   ];
 
+  const savedDATA = [
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      title: 'Matemática',
+      image: 'https://i.imgur.com/8bLNgWj.png',
+    },
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      title: 'Matemática',
+      image: 'https://i.imgur.com/8bLNgWj.png',
+    },
+  ];
+
   const [search, setSearch] = useState('');
+  const [isHome, setIsHome] = useState(true);
   const { navigate } = useNavigation();
 
   const filterCourse =
@@ -91,38 +107,65 @@ const Home: React.FC = () => {
           value={search}
         />
       </InputView>
+      {isHome ? (
+        <CourseList
+          numColumns={2}
+          ListHeaderComponent={
+            <CoursesBar>
+              <Title>Categorias</Title>
+              <InfoText>43 cursos</InfoText>
+            </CoursesBar>
+          }
+          data={filterCourse}
+          keyExtractor={course => course.id}
+          renderItem={({ item: course }) => (
+            <CourseCard>
+              <CourseImage source={{ uri: course.image }} />
+              <CourseTitle>{course.title}</CourseTitle>
+              <CourseLessons>16 Aulas</CourseLessons>
+            </CourseCard>
+          )}
+        />
+      ) : (
+        <SavedList
+          numColumns={2}
+          ListHeaderComponent={
+            <CoursesBar>
+              <Title>Cursos salvos</Title>
+            </CoursesBar>
+          }
+          data={savedDATA}
+          keyExtractor={course => course.id}
+          renderItem={({ item: course }) => (
+            <CourseCard>
+              <CourseImage source={{ uri: course.image }} />
+              <CourseTitle>{course.title}</CourseTitle>
+              <CourseLessons>16 Aulas</CourseLessons>
+            </CourseCard>
+          )}
+        />
+      )}
 
-      <CourseList
-        numColumns={2}
-        columnWrapperStyle={{ paddingLeft: 17 }}
-        ListHeaderComponent={
-          <CoursesBar>
-            <Title>Categorias</Title>
-            <InfoText>43 cursos</InfoText>
-          </CoursesBar>
-        }
-        contentContainerStyle={{
-          paddingBottom: 25,
-          backgroundColor: '#F0EDF5',
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-        }}
-        data={filterCourse}
-        keyExtractor={course => course.id}
-        renderItem={({ item: course }) => (
-          <CourseCard>
-            <CourseImage source={{ uri: course.image }} />
-            <CourseTitle>{course.title}</CourseTitle>
-            <CourseLessons>16 Aulas</CourseLessons>
-          </CourseCard>
-        )}
-      />
       <BottomMenu>
-        <TextMenu>
-          <Icon name="home" color="#ff6680" size={20} /> Home
+        <TextMenu onPress={() => setIsHome(true)}>
+          <ButtonText active={isHome}>
+            <Icon
+              name="home"
+              color={isHome ? '#ff6680' : '#C4C4D1'}
+              size={20}
+            />{' '}
+            Home
+          </ButtonText>
         </TextMenu>
-        <TextMenu onPress={() => navigate('MyCourses')}>
-          <Icon name="hearto" color="#ff6680" size={20} /> Salvos
+        <TextMenu onPress={() => setIsHome(false)}>
+          <ButtonText active={!isHome}>
+            <Icon
+              name="hearto"
+              color={isHome ? '#C4C4D1' : '#ff6680'}
+              size={20}
+            />{' '}
+            Salvos
+          </ButtonText>
         </TextMenu>
       </BottomMenu>
     </>

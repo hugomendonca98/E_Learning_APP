@@ -1,5 +1,10 @@
 import { FlatList } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
+
+interface PropButtonText {
+  active?: boolean;
+}
 
 export const NavegationBar = styled.View`
   flex-direction: row;
@@ -80,7 +85,27 @@ export const CourseLessons = styled.Text`
   margin-top: 5px;
 `;
 
-export const CourseList = styled(FlatList as new () => FlatList)``;
+export const CourseList = styled(FlatList as new () => FlatList).attrs({
+  columnWrapperStyle: { paddingLeft: 17 },
+  contentContainerStyle: {
+    paddingBottom: 25,
+    backgroundColor: '#F0EDF5',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    minHeight: '100%',
+  },
+})``;
+
+export const SavedList = styled(FlatList as new () => FlatList).attrs({
+  columnWrapperStyle: { paddingLeft: 17 },
+  contentContainerStyle: {
+    paddingBottom: 25,
+    backgroundColor: '#F0EDF5',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    minHeight: '100%',
+  },
+})``;
 
 export const BottomMenu = styled.View`
   flex-direction: row;
@@ -90,10 +115,21 @@ export const BottomMenu = styled.View`
   background-color: #ffff;
 `;
 
-export const TextMenu = styled.Text`
-  font-family: 'Roboto-Medium';
+export const TextMenu = styled(RectButton)`
   margin: auto;
   align-items: center;
+  flex: 1;
+`;
+
+export const ButtonText = styled.Text<PropButtonText>`
+  border-top-color: ${props => (props.active ? '#ff6680' : '#f0edf5')};
+  color: ${props => (props.active ? '#ff6680' : '#C4C4D1')};
+  font-family: 'Roboto-Medium';
   font-size: 15px;
-  color: #ff6680;
+  border-top-width: 2px;
+  flex: 1;
+  width: 100%;
+  text-align: center;
+  margin-top: -1px;
+  padding-top: 23px;
 `;
