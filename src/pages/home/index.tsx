@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Image } from 'react-native';
+import { Image, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import IconFeather from 'react-native-vector-icons/Feather';
 
-import { useNavigation } from '@react-navigation/native';
 import {
   NavegationBar,
   InputView,
@@ -18,72 +18,81 @@ import {
   BottomMenu,
   TextMenu,
   ButtonText,
-  SavedList,
+  TrashView,
+  TrashButton,
+  ModalContainer,
+  OutModalStyle,
+  InnerModal,
+  ContentModal,
+  ButtonModal,
+  TextModal,
+  ButtonTextModal,
+  NoButtonModal,
+  AlignButtons,
 } from './styles';
 import logo from '../../assets/logo.png';
 
 const Home: React.FC = () => {
-  const DATA = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'Matemática',
-      image: 'https://i.imgur.com/8bLNgWj.png',
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Física',
-      image: 'https://i.imgur.com/dULRLNc.png',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      title: 'Inglês',
-      image: 'https://i.imgur.com/a1VHJMh.png',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d42387',
-      title: 'Quimíca',
-      image: 'https://i.imgur.com/TqAitEv.png',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d7439',
-      title: 'Escrita',
-      image: 'https://i.imgur.com/FbX8juC.png',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d7634',
-      title: 'Talk',
-      image: 'https://i.imgur.com/A9FzyRB.png',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d732',
-      title: '5',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72483',
-      title: '7',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72349',
-      title: '8',
-    },
-  ];
-
-  const savedDATA = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'Matemática',
-      image: 'https://i.imgur.com/8bLNgWj.png',
-    },
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'Matemática',
-      image: 'https://i.imgur.com/8bLNgWj.png',
-    },
-  ];
-
   const [search, setSearch] = useState('');
   const [isHome, setIsHome] = useState(true);
-  const { navigate } = useNavigation();
+
+  const DATA = isHome
+    ? [
+        {
+          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+          title: 'Matemática',
+          image: 'https://i.imgur.com/8bLNgWj.png',
+        },
+        {
+          id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+          title: 'Física',
+          image: 'https://i.imgur.com/dULRLNc.png',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d72',
+          title: 'Inglês',
+          image: 'https://i.imgur.com/a1VHJMh.png',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d42387',
+          title: 'Quimíca',
+          image: 'https://i.imgur.com/TqAitEv.png',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d7439',
+          title: 'Escrita',
+          image: 'https://i.imgur.com/FbX8juC.png',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d7634',
+          title: 'Talk',
+          image: 'https://i.imgur.com/A9FzyRB.png',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d732',
+          title: '5',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d72483',
+          title: '7',
+        },
+        {
+          id: '58694a0f-3da1-471f-bd96-145571e29d72349',
+          title: '8',
+        },
+      ]
+    : [
+        {
+          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+          title: 'Matemática',
+          image: 'https://i.imgur.com/8bLNgWj.png',
+        },
+        {
+          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+          title: 'Matemática',
+          image: 'https://i.imgur.com/8bLNgWj.png',
+        },
+      ];
 
   const filterCourse =
     search !== ''
@@ -91,6 +100,8 @@ const Home: React.FC = () => {
           course.title.toLowerCase().includes(search.toLowerCase()),
         )
       : DATA;
+
+  const [test, setTest] = useState(false);
 
   return (
     <>
@@ -107,44 +118,68 @@ const Home: React.FC = () => {
           value={search}
         />
       </InputView>
-      {isHome ? (
-        <CourseList
-          numColumns={2}
-          ListHeaderComponent={
-            <CoursesBar>
-              <Title>Categorias</Title>
-              <InfoText>43 cursos</InfoText>
-            </CoursesBar>
-          }
-          data={filterCourse}
-          keyExtractor={course => course.id}
-          renderItem={({ item: course }) => (
-            <CourseCard>
+
+      <ModalContainer>
+        <Modal
+          animationType="fade"
+          transparent
+          visible={test}
+          onRequestClose={() => setTest(false)}
+        >
+          <OutModalStyle>
+            <InnerModal>
+              <ContentModal>
+                <IconFeather name="trash" color="#FF6680" size={45} />
+
+                <TextModal>Quer excluir suas aulas de Matemática?</TextModal>
+
+                <AlignButtons>
+                  <NoButtonModal onPress={() => setTest(false)}>
+                    Não!
+                  </NoButtonModal>
+                  <ButtonModal
+                    underlayColor="#ff8599"
+                    onPress={() => setTest(false)}
+                  >
+                    <ButtonTextModal>Com certeza!</ButtonTextModal>
+                  </ButtonModal>
+                </AlignButtons>
+              </ContentModal>
+            </InnerModal>
+          </OutModalStyle>
+        </Modal>
+      </ModalContainer>
+
+      <CourseList
+        numColumns={2}
+        ListHeaderComponent={
+          <CoursesBar>
+            <Title>{isHome ? 'Categorias' : 'Cursos Salvos'}</Title>
+            {isHome && <InfoText>43 cursos</InfoText>}
+          </CoursesBar>
+        }
+        data={filterCourse}
+        keyExtractor={course => course.id}
+        renderItem={({ item: course }) => (
+          <CourseCard>
+            <TrashView>
               <CourseImage source={{ uri: course.image }} />
-              <CourseTitle>{course.title}</CourseTitle>
-              <CourseLessons>16 Aulas</CourseLessons>
-            </CourseCard>
-          )}
-        />
-      ) : (
-        <SavedList
-          numColumns={2}
-          ListHeaderComponent={
-            <CoursesBar>
-              <Title>Cursos salvos</Title>
-            </CoursesBar>
-          }
-          data={savedDATA}
-          keyExtractor={course => course.id}
-          renderItem={({ item: course }) => (
-            <CourseCard>
-              <CourseImage source={{ uri: course.image }} />
-              <CourseTitle>{course.title}</CourseTitle>
-              <CourseLessons>16 Aulas</CourseLessons>
-            </CourseCard>
-          )}
-        />
-      )}
+              {!isHome && (
+                <TrashButton>
+                  <IconFeather
+                    onPress={() => setTest(true)}
+                    name="trash"
+                    color="#C4C4D1"
+                    size={20}
+                  />
+                </TrashButton>
+              )}
+            </TrashView>
+            <CourseTitle>{course.title}</CourseTitle>
+            <CourseLessons>16 Aulas</CourseLessons>
+          </CourseCard>
+        )}
+      />
 
       <BottomMenu>
         <TextMenu onPress={() => setIsHome(true)}>

@@ -62,6 +62,18 @@ export const CourseCard = styled.View`
   background-color: #ffffff;
   margin: 24px 16px 18px 16px;
   padding-left: 20px;
+  padding-right: 20px;
+`;
+
+export const TrashView = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const TrashButton = styled(RectButton)`
+  margin-top: -45px;
+  margin-right: -10px;
 `;
 
 export const CourseImage = styled.Image`
@@ -86,17 +98,6 @@ export const CourseLessons = styled.Text`
 `;
 
 export const CourseList = styled(FlatList as new () => FlatList).attrs({
-  columnWrapperStyle: { paddingLeft: 17 },
-  contentContainerStyle: {
-    paddingBottom: 25,
-    backgroundColor: '#F0EDF5',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    minHeight: '100%',
-  },
-})``;
-
-export const SavedList = styled(FlatList as new () => FlatList).attrs({
   columnWrapperStyle: { paddingLeft: 17 },
   contentContainerStyle: {
     paddingBottom: 25,
@@ -132,4 +133,70 @@ export const ButtonText = styled.Text<PropButtonText>`
   text-align: center;
   margin-top: -1px;
   padding-top: 23px;
+`;
+
+export const ModalContainer = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: #ecf0f1;
+`;
+
+export const OutModalStyle = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.2);
+`;
+
+export const InnerModal = styled.View`
+  background-color: #fff;
+  padding: 50px;
+  border-radius: 16px;
+`;
+
+export const ContentModal = styled.View`
+  justify-content: center;
+  align-items: center;
+  width: 180px;
+`;
+
+export const AlignButtons = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const ButtonModal = styled.TouchableHighlight`
+  font-family: 'Rubik-Regular';
+  font-size: 15px;
+  line-height: 25px;
+  text-align: center;
+  margin-top: 28px;
+  padding: 11px 24px;
+  border-radius: 100px;
+  background-color: #ff6680;
+`;
+
+export const ButtonTextModal = styled.Text`
+  font-family: 'Roboto-Regular';
+  font-size: 15px;
+  color: #fff;
+`;
+
+export const TextModal = styled.Text`
+  font-family: 'Rubik-Regular';
+  font-size: 15px;
+  line-height: 25px;
+  text-align: center;
+  color: #6c6c80;
+`;
+
+export const NoButtonModal = styled.Text`
+  color: #ff6680;
+  font-family: 'Roboto-Regular';
+  font-size: 15px;
+  line-height: 18px;
+  margin-top: 30px;
+  margin-right: 20px;
 `;
