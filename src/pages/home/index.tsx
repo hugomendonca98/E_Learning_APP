@@ -3,6 +3,7 @@ import { Image, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconFeather from 'react-native-vector-icons/Feather';
 
+import { useNavigation } from '@react-navigation/native';
 import {
   NavegationBar,
   InputView,
@@ -29,12 +30,14 @@ import {
   ButtonTextModal,
   NoButtonModal,
   AlignButtons,
+  ButtonToLessons,
 } from './styles';
 import logo from '../../assets/logo.png';
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isHome, setIsHome] = useState(true);
+  const { navigate } = useNavigation();
 
   const DATA = isHome
     ? [
@@ -88,7 +91,7 @@ const Home: React.FC = () => {
           image: 'https://i.imgur.com/8bLNgWj.png',
         },
         {
-          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb285ba',
           title: 'Matemática',
           image: 'https://i.imgur.com/8bLNgWj.png',
         },
@@ -101,7 +104,7 @@ const Home: React.FC = () => {
         )
       : DATA;
 
-  const [test, setTest] = useState(false);
+  const [modal, setModal] = useState(false);
 
   return (
     <>
@@ -123,8 +126,8 @@ const Home: React.FC = () => {
         <Modal
           animationType="fade"
           transparent
-          visible={test}
-          onRequestClose={() => setTest(false)}
+          visible={modal}
+          onRequestClose={() => setModal(false)}
         >
           <OutModalStyle>
             <InnerModal>
@@ -134,12 +137,12 @@ const Home: React.FC = () => {
                 <TextModal>Quer excluir suas aulas de Matemática?</TextModal>
 
                 <AlignButtons>
-                  <NoButtonModal onPress={() => setTest(false)}>
+                  <NoButtonModal onPress={() => setModal(false)}>
                     Não!
                   </NoButtonModal>
                   <ButtonModal
                     underlayColor="#ff8599"
-                    onPress={() => setTest(false)}
+                    onPress={() => setModal(false)}
                   >
                     <ButtonTextModal>Com certeza!</ButtonTextModal>
                   </ButtonModal>
@@ -161,23 +164,25 @@ const Home: React.FC = () => {
         data={filterCourse}
         keyExtractor={course => course.id}
         renderItem={({ item: course }) => (
-          <CourseCard>
-            <TrashView>
-              <CourseImage source={{ uri: course.image }} />
-              {!isHome && (
-                <TrashButton>
-                  <IconFeather
-                    onPress={() => setTest(true)}
-                    name="trash"
-                    color="#C4C4D1"
-                    size={20}
-                  />
-                </TrashButton>
-              )}
-            </TrashView>
-            <CourseTitle>{course.title}</CourseTitle>
-            <CourseLessons>16 Aulas</CourseLessons>
-          </CourseCard>
+          <ButtonToLessons onPress={() => navigate('Lessons')}>
+            <CourseCard>
+              <TrashView>
+                <CourseImage source={{ uri: course.image }} />
+                {!isHome && (
+                  <TrashButton>
+                    <IconFeather
+                      onPress={() => setModal(true)}
+                      name="trash"
+                      color="#C4C4D1"
+                      size={20}
+                    />
+                  </TrashButton>
+                )}
+              </TrashView>
+              <CourseTitle>{course.title}</CourseTitle>
+              <CourseLessons>16 Aulas</CourseLessons>
+            </CourseCard>
+          </ButtonToLessons>
         )}
       />
 

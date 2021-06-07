@@ -135,11 +135,12 @@ export const ButtonText = styled.Text<PropButtonText>`
   padding-top: 23px;
 `;
 
+export const ButtonToLessons = styled(RectButton)``;
+
 export const ModalContainer = styled.View`
   flex: 1;
   align-items: center;
   justify-content: center;
-  background-color: #ecf0f1;
 `;
 
 export const OutModalStyle = styled.View`

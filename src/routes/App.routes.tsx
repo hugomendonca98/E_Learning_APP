@@ -1,7 +1,8 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+
 import Home from '../pages/Home';
-import MyCourses from '../pages/MyCourses';
+import Lessons from '../pages/Lessons';
 
 const App = createStackNavigator();
 
@@ -13,7 +14,7 @@ const AppRoutes: React.FC = () => (
     }}
   >
     <App.Screen name="Home" component={Home} />
-    <App.Screen name="MyCourses" component={MyCourses} />
+    <App.Screen name="Lessons" component={Lessons} />
   </App.Navigator>
 );
 
