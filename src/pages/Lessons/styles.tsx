@@ -61,7 +61,7 @@ export const LessonPlay = styled.View`
   border-radius: 16px;
   background-color: #61c5bd;
   align-items: center;
-  margin-right: -20px;
+  margin-right: -30px;
   z-index: 1000;
 `;
 
@@ -70,8 +70,50 @@ export const LessonTextContent = styled.View`
   width: 290px;
   height: 100px;
   border-radius: 16px;
-  padding: 20px;
-  padding-left: 30px;
+  padding: 16px;
+  padding-left: 45px;
 `;
 
-export const LessonTitle = styled.Text``;
+export const LessonTitle = styled.Text`
+  font-family: 'Rubik-Regular';
+  font-size: 15px;
+  line-height: 20px;
+  color: #6c6c80;
+`;
+
+export const LessonInfoContent = styled.View`
+  flex-direction: row;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const DurationContent = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+export const LessonInfoText = styled.Text`
+  font-family: 'Roboto:Regular';
+  font-size: 10px;
+  color: #c4c4d1;
+  line-height: 11px;
+  align-items: center;
+  margin-right: 10px;
+`;
+
+export const ClockIcon = styled.View`
+  margin-right: 5px;
+`;
+
+export const Completed = styled.Text`
+  font-family: 'Roboto-Regular';
+  font-size: 10px;
+  background-color: #61c5bd;
+  color: #fff;
+  padding: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-radius: 12px;
+  justify-content: flex-end;
+`;

@@ -16,13 +16,18 @@ import {
   NavBar,
   LessonTextContent,
   LessonTitle,
+  LessonInfoContent,
+  LessonInfoText,
+  ClockIcon,
+  DurationContent,
+  Completed,
 } from './styles';
 
 const Lessons: React.FC = () => {
   const DATA = [
     {
       id: '6b620742-5c76-440c-b1e8-fdd30f023c39',
-      name: 'Introdução à teoria matemática',
+      name: 'Introdução à teoria matemática blabla blabla bla blablabla bla blabla',
       duration: 30,
       course_id: '875a031e-6e83-49af-9f8b-e65cdd3d7bd2',
       description: 'Testando se está funcionando',
@@ -56,6 +61,13 @@ const Lessons: React.FC = () => {
     },
   ];
 
+  const formatDuration = (time: number) => {
+    const measuredTime = new Date(2021, 5, 17, -3);
+    measuredTime.setSeconds(time);
+    const MHSTime = measuredTime.toISOString().substr(11, 8);
+    return MHSTime;
+  };
+
   return (
     <>
       <NavBar>
@@ -72,7 +84,7 @@ const Lessons: React.FC = () => {
         }
         data={DATA}
         keyExtractor={lesson => lesson.id}
-        renderItem={({ item: lesson }) => (
+        renderItem={({ item: lesson, index }) => (
           <LessonCard>
             <LessonPlay>
               <EvilIcons
@@ -83,7 +95,23 @@ const Lessons: React.FC = () => {
               />
             </LessonPlay>
             <LessonTextContent>
-              <LessonTitle>{lesson.name}</LessonTitle>
+              <LessonTitle numberOfLines={2}>{lesson.name}</LessonTitle>
+              <LessonInfoContent>
+                <DurationContent>
+                  <LessonInfoText>{`Aula ${index + 1}`}</LessonInfoText>
+                  <ClockIcon>
+                    <AntDesignIcons
+                      name="clockcircleo"
+                      color="#C4C4D1"
+                      size={13}
+                    />
+                  </ClockIcon>
+                  <LessonInfoText>
+                    {formatDuration(lesson.duration)}
+                  </LessonInfoText>
+                </DurationContent>
+                <Completed>Completo!</Completed>
+              </LessonInfoContent>
             </LessonTextContent>
           </LessonCard>
         )}
