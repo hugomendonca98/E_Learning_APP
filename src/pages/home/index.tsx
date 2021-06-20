@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconFeather from 'react-native-vector-icons/Feather';
@@ -33,6 +33,7 @@ import {
   ButtonToLessons,
 } from './styles';
 import logo from '../../assets/logo.png';
+import api from '../../services/api';
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -105,6 +106,23 @@ const Home: React.FC = () => {
       : DATA;
 
   const [modal, setModal] = useState(false);
+  const [courses, setCourses] = useState([]);
+
+  const config = {
+    headers: {
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjM2Mjk1OTQsImV4cCI6MTYyMzcxNTk5NCwic3ViIjoiYTg1M2NmZjgtNjc0OS00YmI0LWE3YWEtZmNiYmM4ODVhYWM5In0.TzOUEJ33YQ8ivSZaa7f5SjHNkwnY1SPUTAB-qLmH6fE`,
+    },
+  };
+
+  useEffect(() => {
+    async function getDate() {
+      const response = await api.get('/courses', config);
+      setCourses(response.data);
+      console.log(response.data);
+    }
+
+    getDate();
+  }, []);
 
   return (
     <>
