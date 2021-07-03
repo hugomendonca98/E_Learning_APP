@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Image, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconFeather from 'react-native-vector-icons/Feather';
@@ -8,6 +8,7 @@ import {
   NavegationBar,
   InputView,
   InputSearch,
+  SignOutButton,
   CoursesBar,
   Title,
   InfoText,
@@ -35,10 +36,13 @@ import {
 import logo from '../../assets/logo.png';
 import api from '../../services/api';
 
+import { useAuth } from '../../hooks/auth';
+
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isHome, setIsHome] = useState(true);
   const { navigate } = useNavigation();
+  const { signOut } = useAuth();
 
   const DATA = isHome
     ? [
@@ -110,11 +114,11 @@ const Home: React.FC = () => {
 
   const config = {
     headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjM2Mjk1OTQsImV4cCI6MTYyMzcxNTk5NCwic3ViIjoiYTg1M2NmZjgtNjc0OS00YmI0LWE3YWEtZmNiYmM4ODVhYWM5In0.TzOUEJ33YQ8ivSZaa7f5SjHNkwnY1SPUTAB-qLmH6fE`,
+      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjQzMDE0NDMsImV4cCI6MTYyNDM4Nzg0Mywic3ViIjoiYTg1M2NmZjgtNjc0OS00YmI0LWE3YWEtZmNiYmM4ODVhYWM5In0.90K4L8UAXIhLwkCLqo4mh8z0yCPrTLdHOF1paMvao4o`,
     },
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
     async function getDate() {
       const response = await api.get('/courses', config);
       setCourses(response.data);
@@ -122,13 +126,15 @@ const Home: React.FC = () => {
     }
 
     getDate();
-  }, []);
+  }, []); */
 
   return (
     <>
       <NavegationBar>
         <Image source={logo} />
-        <Icon name="poweroff" size={20} color="#FF6680" />
+        <SignOutButton onPress={signOut}>
+          <Icon name="poweroff" size={20} color="#FF6680" />
+        </SignOutButton>
       </NavegationBar>
       <InputView>
         <Icon name="search1" size={20} color="#C4C4D1" />

@@ -62,7 +62,7 @@ export const AuthProvider: React.FC = ({ children }) => {
 
   // HOOK DE LOGIN/AUTH
   const signIn = useCallback(async ({ email, password }) => {
-    const response = await api.post('/sessions', {
+    const response = await api.post('/session', {
       email,
       password,
     });
@@ -70,8 +70,8 @@ export const AuthProvider: React.FC = ({ children }) => {
     const { token, user } = response.data;
 
     await AsyncStorage.multiSet([
-      ['@GoBarber:token', token],
-      ['@GoBarber:user', JSON.stringify(user)],
+      ['@ELearning:token', token],
+      ['@ELearning:user', JSON.stringify(user)],
     ]);
 
     api.defaults.headers.authorization = `Bearer ${token}`;

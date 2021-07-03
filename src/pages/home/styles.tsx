@@ -33,6 +33,8 @@ export const InputSearch = styled.TextInput`
   margin-right: 10px;
 `;
 
+export const SignOutButton = styled(RectButton)``;
+
 export const CoursesBar = styled.View`
   flex-direction: row;
   background-color: #f0edf5;
