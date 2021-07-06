@@ -9,7 +9,7 @@ export const Container = styled.View`
   justify-content: center;
   align-items: center;
   padding: 15px;
-  flex: 1;
+  margin: auto;
 `;
 
 export const Title = styled.Text`
@@ -28,6 +28,19 @@ export const ButtonSubmit = styled.TouchableOpacity`
 
 export const ButtonText = styled.Text`
   color: #fff;
+  font-family: 'Rubik-Regular';
+  font-size: 20px;
+`;
+
+export const ButtonConfirm = styled.TouchableOpacity`
+  background-color: #fff;
+  padding: 10px 30px;
+  border-radius: 20px;
+  margin-top: 10px;
+`;
+
+export const ButtonConfirmText = styled.Text`
+  color: #ff6680;
   font-family: 'Rubik-Regular';
   font-size: 20px;
 `;

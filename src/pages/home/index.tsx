@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Image, Modal } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconFeather from 'react-native-vector-icons/Feather';
 
@@ -22,17 +22,13 @@ import {
   ButtonText,
   TrashView,
   TrashButton,
-  ModalContainer,
-  OutModalStyle,
-  InnerModal,
-  ContentModal,
+  ButtonToLessons,
+  AlignButtons,
   ButtonModal,
-  TextModal,
   ButtonTextModal,
   NoButtonModal,
-  AlignButtons,
-  ButtonToLessons,
 } from './styles';
+import ModalComponent from '../../components/Modal';
 import logo from '../../assets/logo.png';
 import api from '../../services/api';
 
@@ -41,8 +37,16 @@ import { useAuth } from '../../hooks/auth';
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isHome, setIsHome] = useState(true);
+  const [modal, setModal] = useState(false);
+  const [courseNameModal, setCourseNameModal] = useState('');
+
   const { navigate } = useNavigation();
   const { signOut } = useAuth();
+
+  const setCourseModal = useCallback((courseName: string) => {
+    setModal(true);
+    setCourseNameModal(courseName);
+  }, []);
 
   const DATA = isHome
     ? [
@@ -109,14 +113,7 @@ const Home: React.FC = () => {
         )
       : DATA;
 
-  const [modal, setModal] = useState(false);
   const [courses, setCourses] = useState([]);
-
-  const config = {
-    headers: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjQzMDE0NDMsImV4cCI6MTYyNDM4Nzg0Mywic3ViIjoiYTg1M2NmZjgtNjc0OS00YmI0LWE3YWEtZmNiYmM4ODVhYWM5In0.90K4L8UAXIhLwkCLqo4mh8z0yCPrTLdHOF1paMvao4o`,
-    },
-  };
 
   /* useEffect(() => {
     async function getDate() {
@@ -146,36 +143,19 @@ const Home: React.FC = () => {
         />
       </InputView>
 
-      <ModalContainer>
-        <Modal
-          animationType="fade"
-          transparent
-          visible={modal}
-          onRequestClose={() => setModal(false)}
-        >
-          <OutModalStyle>
-            <InnerModal>
-              <ContentModal>
-                <IconFeather name="trash" color="#FF6680" size={45} />
-
-                <TextModal>Quer excluir suas aulas de Matemática?</TextModal>
-
-                <AlignButtons>
-                  <NoButtonModal onPress={() => setModal(false)}>
-                    Não!
-                  </NoButtonModal>
-                  <ButtonModal
-                    underlayColor="#ff8599"
-                    onPress={() => setModal(false)}
-                  >
-                    <ButtonTextModal>Com certeza!</ButtonTextModal>
-                  </ButtonModal>
-                </AlignButtons>
-              </ContentModal>
-            </InnerModal>
-          </OutModalStyle>
-        </Modal>
-      </ModalContainer>
+      <ModalComponent
+        modalTitle={`Desejá excluir o curso de ${courseNameModal}?`}
+        icon="trash"
+        setModal={setModal}
+        modal={modal}
+      >
+        <AlignButtons>
+          <NoButtonModal onPress={() => setModal(false)}>Não</NoButtonModal>
+          <ButtonModal underlayColor="#ff8599" onPress={() => setModal(false)}>
+            <ButtonTextModal>Com Certeza</ButtonTextModal>
+          </ButtonModal>
+        </AlignButtons>
+      </ModalComponent>
 
       <CourseList
         numColumns={2}
@@ -195,7 +175,7 @@ const Home: React.FC = () => {
                 {!isHome && (
                   <TrashButton>
                     <IconFeather
-                      onPress={() => setModal(true)}
+                      onPress={() => setCourseModal(course.title)}
                       name="trash"
                       color="#C4C4D1"
                       size={20}
