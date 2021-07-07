@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
-import IconFeather from 'react-native-vector-icons/Feather';
 
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -9,20 +8,9 @@ import {
   InputView,
   InputSearch,
   SignOutButton,
-  CoursesBar,
-  Title,
-  InfoText,
-  CourseCard,
-  CourseList,
-  CourseTitle,
-  CourseImage,
-  CourseLessons,
   BottomMenu,
   TextMenu,
   ButtonText,
-  TrashView,
-  TrashButton,
-  ButtonToLessons,
   AlignButtons,
   ButtonModal,
   ButtonTextModal,
@@ -30,9 +18,10 @@ import {
 } from './styles';
 import ModalComponent from '../../components/Modal';
 import logo from '../../assets/logo.png';
-import api from '../../services/api';
 
 import { useAuth } from '../../hooks/auth';
+import useCourses from '../../hooks/courses';
+import CourseListComponent from '../../components/CourseList';
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -42,88 +31,19 @@ const Home: React.FC = () => {
 
   const { navigate } = useNavigation();
   const { signOut } = useAuth();
+  const { courses } = useCourses();
 
   const setCourseModal = useCallback((courseName: string) => {
     setModal(true);
     setCourseNameModal(courseName);
   }, []);
 
-  const DATA = isHome
-    ? [
-        {
-          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-          title: 'Matemática',
-          image: 'https://i.imgur.com/8bLNgWj.png',
-        },
-        {
-          id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-          title: 'Física',
-          image: 'https://i.imgur.com/dULRLNc.png',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d72',
-          title: 'Inglês',
-          image: 'https://i.imgur.com/a1VHJMh.png',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d42387',
-          title: 'Quimíca',
-          image: 'https://i.imgur.com/TqAitEv.png',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d7439',
-          title: 'Escrita',
-          image: 'https://i.imgur.com/FbX8juC.png',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d7634',
-          title: 'Talk',
-          image: 'https://i.imgur.com/A9FzyRB.png',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d732',
-          title: '5',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d72483',
-          title: '7',
-        },
-        {
-          id: '58694a0f-3da1-471f-bd96-145571e29d72349',
-          title: '8',
-        },
-      ]
-    : [
-        {
-          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-          title: 'Matemática',
-          image: 'https://i.imgur.com/8bLNgWj.png',
-        },
-        {
-          id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb285ba',
-          title: 'Matemática',
-          image: 'https://i.imgur.com/8bLNgWj.png',
-        },
-      ];
-
   const filterCourse =
     search !== ''
-      ? DATA.filter(course =>
-          course.title.toLowerCase().includes(search.toLowerCase()),
+      ? courses.filter(course =>
+          course.name.toLowerCase().includes(search.toLowerCase()),
         )
-      : DATA;
-
-  const [courses, setCourses] = useState([]);
-
-  /* useEffect(() => {
-    async function getDate() {
-      const response = await api.get('/courses', config);
-      setCourses(response.data);
-      console.log(response.data);
-    }
-
-    getDate();
-  }, []); */
+      : courses;
 
   return (
     <>
@@ -142,7 +62,6 @@ const Home: React.FC = () => {
           value={search}
         />
       </InputView>
-
       <ModalComponent
         modalTitle={`Desejá excluir o curso de ${courseNameModal}?`}
         icon="trash"
@@ -150,45 +69,31 @@ const Home: React.FC = () => {
         modal={modal}
       >
         <AlignButtons>
-          <NoButtonModal onPress={() => setModal(false)}>Não</NoButtonModal>
+          <NoButtonModal onPress={() => setModal(false)}>Não!</NoButtonModal>
           <ButtonModal underlayColor="#ff8599" onPress={() => setModal(false)}>
             <ButtonTextModal>Com Certeza</ButtonTextModal>
           </ButtonModal>
         </AlignButtons>
       </ModalComponent>
 
-      <CourseList
-        numColumns={2}
-        ListHeaderComponent={
-          <CoursesBar>
-            <Title>{isHome ? 'Categorias' : 'Cursos Salvos'}</Title>
-            {isHome && <InfoText>43 cursos</InfoText>}
-          </CoursesBar>
-        }
-        data={filterCourse}
-        keyExtractor={course => course.id}
-        renderItem={({ item: course }) => (
-          <ButtonToLessons onPress={() => navigate('Lessons')}>
-            <CourseCard>
-              <TrashView>
-                <CourseImage source={{ uri: course.image }} />
-                {!isHome && (
-                  <TrashButton>
-                    <IconFeather
-                      onPress={() => setCourseModal(course.title)}
-                      name="trash"
-                      color="#C4C4D1"
-                      size={20}
-                    />
-                  </TrashButton>
-                )}
-              </TrashView>
-              <CourseTitle>{course.title}</CourseTitle>
-              <CourseLessons>16 Aulas</CourseLessons>
-            </CourseCard>
-          </ButtonToLessons>
-        )}
-      />
+      {isHome ? (
+        <CourseListComponent
+          courses={filterCourse}
+          title="Categorias"
+          infoText={`${filterCourse.length} Curso${
+            filterCourse.length > 1 ? 's' : ''
+          }`}
+          navegateTo={() => navigate('Lessons')}
+        />
+      ) : (
+        <CourseListComponent
+          courses={filterCourse}
+          title="Cursos salvos"
+          navegateTo={() => navigate('Lessons')}
+          deletable
+          actionStateDeletable={setCourseModal}
+        />
+      )}
 
       <BottomMenu>
         <TextMenu onPress={() => setIsHome(true)}>
