@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
-import { useEffect, useState } from 'react';
+import { AxiosResponse } from 'axios';
+import { useCallback, useEffect, useState } from 'react';
 
 import api from '../services/api';
 import { useAuth } from './auth';
@@ -12,8 +13,21 @@ type CoursesTypes = {
   updated_at: string;
 };
 
+type LessonTypes = {
+  id: string;
+  name: string;
+  duration: number;
+  course_id: string;
+  description: string;
+  video_id: string;
+  created_at: string;
+  updated_at: string;
+  course: CoursesTypes;
+};
+
 type ReturnUseCoursesTypes = {
   courses: CoursesTypes[];
+  // lessonsContity: (courseId: string) => Promise<AxiosResponse<LessonTypes[]>>;
 };
 
 export default function useCourses(): ReturnUseCoursesTypes {

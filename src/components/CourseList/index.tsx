@@ -1,8 +1,9 @@
 /* eslint-disable react/require-default-props */
 /* eslint-disable camelcase */
 import React, { ReactNode } from 'react';
-
 import IconFeather from 'react-native-vector-icons/Feather';
+
+import LessonsContity from '../LessonsContity';
 
 import {
   CourseList,
@@ -36,7 +37,7 @@ interface CourseProps {
   navegateTo: () => void;
 }
 
-function CourseListComponent({
+const CourseListComponent: React.FC<CourseProps> = ({
   courses,
   title,
   infoText = '',
@@ -44,7 +45,11 @@ function CourseListComponent({
   deletable = false,
   actionStateDeletable,
   navegateTo,
-}: CourseProps): JSX.Element {
+}: CourseProps) => {
+  // criar um component
+
+  // lessonsContity('875a031e-6e83-49af-9f8b-e65cdd3d7bd2');
+
   return (
     <CourseList
       numColumns={2}
@@ -76,12 +81,15 @@ function CourseListComponent({
               {children}
             </TrashView>
             <CourseTitle>{course.name}</CourseTitle>
-            <CourseLessons>16 Aulas</CourseLessons>
+
+            <CourseLessons>
+              <LessonsContity id={course.id} />
+            </CourseLessons>
           </CourseCard>
         </ButtonToLessons>
       )}
     />
   );
-}
+};
 
 export default CourseListComponent;
