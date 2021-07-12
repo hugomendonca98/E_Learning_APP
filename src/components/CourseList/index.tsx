@@ -1,5 +1,6 @@
 /* eslint-disable react/require-default-props */
 /* eslint-disable camelcase */
+import { useNavigation } from '@react-navigation/native';
 import React, { ReactNode } from 'react';
 import IconFeather from 'react-native-vector-icons/Feather';
 
@@ -23,8 +24,6 @@ type CourseTypes = {
   id: string;
   name: string;
   image: string;
-  created_at: string;
-  updated_at: string;
 };
 
 interface CourseProps {
@@ -34,7 +33,6 @@ interface CourseProps {
   children?: ReactNode;
   deletable?: boolean;
   actionStateDeletable?: (courseName: string) => void;
-  navegateTo: () => void;
 }
 
 const CourseListComponent: React.FC<CourseProps> = ({
@@ -44,11 +42,12 @@ const CourseListComponent: React.FC<CourseProps> = ({
   children,
   deletable = false,
   actionStateDeletable,
-  navegateTo,
 }: CourseProps) => {
   // criar um component
 
   // lessonsContity('875a031e-6e83-49af-9f8b-e65cdd3d7bd2');
+
+  const { navigate } = useNavigation();
 
   return (
     <CourseList
@@ -62,7 +61,7 @@ const CourseListComponent: React.FC<CourseProps> = ({
       data={courses}
       keyExtractor={course => course.id}
       renderItem={({ item: course }) => (
-        <ButtonToLessons onPress={navegateTo}>
+        <ButtonToLessons onPress={() => navigate('Lessons', { id: course.id })}>
           <CourseCard>
             <TrashView>
               <CourseImage source={{ uri: course.image }} />

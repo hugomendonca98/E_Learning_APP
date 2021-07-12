@@ -1,12 +1,14 @@
-import React from 'react';
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable camelcase */
+import React, { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import { useNavigation } from '@react-navigation/native';
 import logo from '../../assets/logo.png';
 import {
-  GoToLesson,
   LessonPlay,
   LessonCard,
   LessonsList,
@@ -23,43 +25,45 @@ import {
   Completed,
 } from './styles';
 
-const Lessons: React.FC = () => {
-  const DATA = [
-    {
-      id: '6b620742-5c76-440c-b1e8-fdd30f023c39',
-      name: 'Introdução à teoria matemática blabla blabla bla blablabla bla blabla',
-      duration: 30,
-      course_id: '875a031e-6e83-49af-9f8b-e65cdd3d7bd2',
-      description: 'Testando se está funcionando',
-      video_id: 'tXTS0wQkZio',
-      created_at: '2021-05-23T16:45:21.000Z',
-      updated_at: '2021-05-23T16:45:21.000Z',
-      course: {
-        id: '875a031e-6e83-49af-9f8b-e65cdd3d7bd2',
-        name: 'Curso de typescript completo 2021',
-        image: 'https://i.ytimg.com/vi/Z0RlhHuw6hk/maxresdefault.jpg',
-        created_at: '2021-05-23T16:45:07.000Z',
-        updated_at: '2021-05-23T16:45:07.000Z',
-      },
-    },
-    {
-      id: '6b620742-5c76-440c-b1e8-fdd30f025c39',
-      name: 'Introdução à teoria matemática',
-      duration: 30,
-      course_id: '875a031e-6e83-49af-9f8b-e65cdd3d7bd2',
-      description: 'Testando se está funcionando',
-      video_id: 'tXTS0wQkZio',
-      created_at: '2021-05-23T16:45:21.000Z',
-      updated_at: '2021-05-23T16:45:21.000Z',
-      course: {
-        id: '875a031e-6e83-49af-9f8b-e65cdd3d7bd2',
-        name: 'Curso de typescript completo 2021',
-        image: 'https://i.ytimg.com/vi/Z0RlhHuw6hk/maxresdefault.jpg',
-        created_at: '2021-05-23T16:45:07.000Z',
-        updated_at: '2021-05-23T16:45:07.000Z',
-      },
-    },
-  ];
+import api from '../../services/api';
+import { useAuth } from '../../hooks/auth';
+import { useCourses } from '../../hooks/courses';
+
+type LessonsProps = {
+  route: {
+    params: {
+      id: string;
+    };
+  };
+};
+
+type LessonContent = {
+  id: string;
+  name: string;
+  duration: number;
+  course_id: string;
+  description: string;
+  video_id: string;
+  course: {
+    id: string;
+    name: string;
+    image: string;
+  };
+};
+
+interface RenderItemLesson {
+  item: LessonContent;
+  index: number;
+}
+
+const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
+  const { id } = route.params;
+  const { goBack } = useNavigation();
+  const { getLessons, lessons } = useCourses();
+
+  useEffect(() => {
+    getLessons(id);
+  }, [getLessons, id]);
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
@@ -71,20 +75,29 @@ const Lessons: React.FC = () => {
   return (
     <>
       <NavBar>
-        <MaterialIcons name="arrow-back" color="#FF6680" size={25} />
+        <MaterialIcons
+          name="arrow-back"
+          color="#FF6680"
+          size={25}
+          onPress={() => goBack()}
+        />
         <Image source={logo} />
         <AntDesignIcons name="hearto" color="#FF6680" size={20} />
       </NavBar>
       <LessonsList
         ListHeaderComponent={
           <LessonsListHeader>
-            <LessonsListHeaderTitle>Matemática</LessonsListHeaderTitle>
-            <LessonsListHeaderText>16 Aulas</LessonsListHeaderText>
+            <LessonsListHeaderTitle>
+              {lessons.length > 0 && lessons[0].course.name}
+            </LessonsListHeaderTitle>
+            <LessonsListHeaderText>
+              {lessons.length > 0 && `${lessons.length} Aula(s)`}
+            </LessonsListHeaderText>
           </LessonsListHeader>
         }
-        data={DATA}
-        keyExtractor={lesson => lesson.id}
-        renderItem={({ item: lesson, index }) => (
+        data={lessons}
+        keyExtractor={(lesson: LessonContent) => lesson.id}
+        renderItem={({ item: lesson, index }: RenderItemLesson) => (
           <LessonCard>
             <LessonPlay>
               <EvilIcons

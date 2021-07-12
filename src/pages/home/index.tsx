@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
-import { useNavigation } from '@react-navigation/native';
 import {
   NavegationBar,
   InputView,
@@ -20,7 +19,7 @@ import ModalComponent from '../../components/Modal';
 import logo from '../../assets/logo.png';
 
 import { useAuth } from '../../hooks/auth';
-import useCourses from '../../hooks/courses';
+import { useCourses } from '../../hooks/courses';
 import CourseListComponent from '../../components/CourseList';
 
 const Home: React.FC = () => {
@@ -29,7 +28,6 @@ const Home: React.FC = () => {
   const [modal, setModal] = useState(false);
   const [courseNameModal, setCourseNameModal] = useState('');
 
-  const { navigate } = useNavigation();
   const { signOut } = useAuth();
   const { courses } = useCourses();
 
@@ -83,13 +81,11 @@ const Home: React.FC = () => {
           infoText={`${filterCourse.length} Curso${
             filterCourse.length > 1 ? 's' : ''
           }`}
-          navegateTo={() => navigate('Lessons')}
         />
       ) : (
         <CourseListComponent
           courses={filterCourse}
           title="Cursos salvos"
-          navegateTo={() => navigate('Lessons')}
           deletable
           actionStateDeletable={setCourseModal}
         />

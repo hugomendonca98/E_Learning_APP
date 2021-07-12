@@ -1,6 +1,11 @@
 /* eslint-disable camelcase */
-import { AxiosResponse } from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+  createContext,
+  useContext,
+  useCallback,
+} from 'react';
 
 import api from '../services/api';
 import { useAuth } from './auth';
@@ -9,30 +14,38 @@ type CoursesTypes = {
   id: string;
   name: string;
   image: string;
-  created_at: string;
-  updated_at: string;
 };
 
-type LessonTypes = {
+type LessonContent = {
   id: string;
   name: string;
   duration: number;
   course_id: string;
   description: string;
   video_id: string;
-  created_at: string;
-  updated_at: string;
-  course: CoursesTypes;
+  course: {
+    id: string;
+    name: string;
+    image: string;
+  };
 };
 
-type ReturnUseCoursesTypes = {
+type CoursesContextData = {
   courses: CoursesTypes[];
-  // lessonsContity: (courseId: string) => Promise<AxiosResponse<LessonTypes[]>>;
+  lessons: LessonContent[];
+  getLessons(courseId: string): Promise<void>;
 };
 
-export default function useCourses(): ReturnUseCoursesTypes {
+export const CoursesContext = createContext<CoursesContextData>(
+  {} as CoursesContextData,
+);
+
+// eslint-disable-next-line react/prop-types
+export const CoursesProvider: React.FC = ({ children }) => {
   const { user, token } = useAuth();
   const [courses, setCourses] = useState<CoursesTypes[]>([]);
+  const [course, setCourse] = useState('');
+  const [lessons, setLessons] = useState([]);
   const [savedCourses, setSavedCourses] = useState<CoursesTypes[]>([]);
 
   useEffect(() => {
@@ -53,5 +66,34 @@ export default function useCourses(): ReturnUseCoursesTypes {
     allCourses();
   }, [token, user]);
 
-  return { courses };
+  const getLessons = useCallback(
+    async (courseId: string) => {
+      if (course !== courseId) {
+        const { data } = await api.get(`/lesson/${courseId}/lessons`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setCourse(courseId);
+        setLessons(data);
+      }
+    },
+    [course, token],
+  );
+
+  return (
+    <CoursesContext.Provider value={{ courses, getLessons, lessons }}>
+      {children}
+    </CoursesContext.Provider>
+  );
+};
+
+export function useCourses(): CoursesContextData {
+  const context = useContext(CoursesContext);
+
+  if (!context) {
+    throw new Error('useCourses must be used within a CoursesProvider');
+  }
+
+  return context;
 }
