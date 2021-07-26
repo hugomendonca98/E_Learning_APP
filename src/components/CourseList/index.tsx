@@ -43,10 +43,6 @@ const CourseListComponent: React.FC<CourseProps> = ({
   deletable = false,
   actionStateDeletable,
 }: CourseProps) => {
-  // criar um component
-
-  // lessonsContity('875a031e-6e83-49af-9f8b-e65cdd3d7bd2');
-
   const { navigate } = useNavigation();
 
   return (
@@ -61,7 +57,7 @@ const CourseListComponent: React.FC<CourseProps> = ({
       data={courses}
       keyExtractor={course => course.id}
       renderItem={({ item: course }) => (
-        <ButtonToLessons onPress={() => navigate('Lessons', { id: course.id })}>
+        <ButtonToLessons onPress={() => navigate('Lessons', { course })}>
           <CourseCard>
             <TrashView>
               <CourseImage source={{ uri: course.image }} />

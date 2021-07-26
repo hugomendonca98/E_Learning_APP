@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable camelcase */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Image } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -23,16 +23,21 @@ import {
   ClockIcon,
   DurationContent,
   Completed,
+  AddToFavotites,
 } from './styles';
 
-import api from '../../services/api';
-import { useAuth } from '../../hooks/auth';
 import { useCourses } from '../../hooks/courses';
+import useRealm from '../../services/realmDB/schema';
+import { useAuth } from '../../hooks/auth';
 
 type LessonsProps = {
   route: {
     params: {
-      id: string;
+      course: {
+        id: string;
+        name: string;
+        image: string;
+      };
     };
   };
 };
@@ -57,13 +62,62 @@ interface RenderItemLesson {
 }
 
 const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
-  const { id } = route.params;
+  const { course } = route.params;
+  const { user } = useAuth();
   const { goBack } = useNavigation();
   const { getLessons, lessons } = useCourses();
+  const realm = useRealm();
+  const [favToggle, setFavToggle] = useState(false);
 
   useEffect(() => {
-    getLessons(id);
-  }, [getLessons, id]);
+    getLessons(course.id);
+  }, [getLessons, course.id]);
+
+  useEffect(() => {
+    async function isFavorite() {
+      const realmdDB = await realm;
+
+      const existCourse = realmdDB
+        .objects('Course')
+        .filtered(`id == '${course.id}'`);
+
+      if (existCourse.length <= 0) {
+        setFavToggle(false);
+      } else {
+        setFavToggle(true);
+      }
+    }
+
+    isFavorite();
+  }, [course.id, realm]);
+
+  const handleAddToFavorites = useCallback(async () => {
+    const realmdDB = await realm;
+
+    const existCourse = realmdDB
+      .objects('Course')
+      .filtered(`id == '${course.id}'`);
+
+    if (existCourse.length <= 0) {
+      realmdDB.write(() => {
+        realmdDB.create('Course', {
+          id: course.id,
+          userId: user.id,
+          name: course.name,
+          image: course.image,
+        });
+
+        setFavToggle(true);
+      });
+
+      return;
+    }
+
+    realmdDB.write(() => {
+      realmdDB.delete(existCourse);
+    });
+    setFavToggle(false);
+  }, [realm, user, course]);
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
@@ -82,7 +136,13 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
           onPress={() => goBack()}
         />
         <Image source={logo} />
-        <AntDesignIcons name="hearto" color="#FF6680" size={20} />
+        <AddToFavotites onPress={() => handleAddToFavorites()}>
+          <AntDesignIcons
+            name={favToggle ? 'hearto' : 'heart'}
+            color="#FF6680"
+            size={20}
+          />
+        </AddToFavotites>
       </NavBar>
       <LessonsList
         ListHeaderComponent={

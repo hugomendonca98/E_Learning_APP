@@ -10,6 +10,8 @@ export const NavBar = styled.View`
   padding-right: 24px;
 `;
 
+export const AddToFavotites = styled(RectButton)``;
+
 export const LessonsList = styled(FlatList as new () => FlatList).attrs({
   contentContainerStyle: {
     paddingBottom: 25,

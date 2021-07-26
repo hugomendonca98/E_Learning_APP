@@ -34,6 +34,38 @@ export const InputSearch = styled.TextInput`
 
 export const SignOutButton = styled(RectButton)``;
 
+export const ButtonModal = styled.TouchableHighlight`
+  font-family: 'Rubik-Regular';
+  font-size: 15px;
+  line-height: 25px;
+  text-align: center;
+  margin-top: 28px;
+  padding: 11px 24px;
+  border-radius: 100px;
+  background-color: #ff6680;
+`;
+
+export const ButtonTextModal = styled.Text`
+  font-family: 'Roboto-Regular';
+  font-size: 15px;
+  color: #fff;
+`;
+
+export const NoButtonModal = styled.Text`
+  color: #ff6680;
+  font-family: 'Roboto-Regular';
+  font-size: 15px;
+  line-height: 18px;
+  margin-top: 30px;
+  margin-right: 20px;
+`;
+
+export const AlignButtons = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
 export const BottomMenu = styled.View`
   flex-direction: row;
   justify-content: space-between;

@@ -42,7 +42,7 @@ export const CoursesContext = createContext<CoursesContextData>(
 
 // eslint-disable-next-line react/prop-types
 export const CoursesProvider: React.FC = ({ children }) => {
-  const { user, token } = useAuth();
+  const { user, token, signOut } = useAuth();
   const [courses, setCourses] = useState<CoursesTypes[]>([]);
   const [course, setCourse] = useState('');
   const [lessons, setLessons] = useState([]);
@@ -51,20 +51,24 @@ export const CoursesProvider: React.FC = ({ children }) => {
   useEffect(() => {
     async function allCourses() {
       if (user) {
-        const onlineCourses = await api.get(
-          '/courses' /* {
+        try {
+          const onlineCourses = await api.get(
+            '/courses' /* {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjYxMTg4MzYsImV4cCI6MTYyNjIwNTIzNiwic3ViIjoiMDcwOWRkOTEtZDYzMS00NDczLWFmN2QtZWQ2OTk0YWQzZGI0In0.nf8udpW2ekBIQ3ZMqdLoLUaoiByFwUMzIN0vIeTJTlc`,
           },
         } */,
-        );
-        setCourses(onlineCourses.data);
+          );
+          setCourses(onlineCourses.data);
+        } catch {
+          signOut();
+        }
       }
 
       // Pegar os cursos salvos localmente, se tiver.
     }
     allCourses();
-  }, [token, user]);
+  }, [signOut, token, user]);
 
   const getLessons = useCallback(
     async (courseId: string) => {

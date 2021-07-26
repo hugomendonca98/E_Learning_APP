@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 
+import { useNavigation } from '@react-navigation/native';
 import {
   NavegationBar,
   InputView,
@@ -10,12 +11,7 @@ import {
   BottomMenu,
   TextMenu,
   ButtonText,
-  AlignButtons,
-  ButtonModal,
-  ButtonTextModal,
-  NoButtonModal,
 } from './styles';
-import ModalComponent from '../../components/Modal';
 import logo from '../../assets/logo.png';
 
 import { useAuth } from '../../hooks/auth';
@@ -24,17 +20,10 @@ import CourseListComponent from '../../components/CourseList';
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [isHome, setIsHome] = useState(true);
-  const [modal, setModal] = useState(false);
-  const [courseNameModal, setCourseNameModal] = useState('');
 
   const { signOut } = useAuth();
   const { courses } = useCourses();
-
-  const setCourseModal = useCallback((courseName: string) => {
-    setModal(true);
-    setCourseNameModal(courseName);
-  }, []);
+  const { navigate } = useNavigation();
 
   const filterCourse =
     search !== ''
@@ -60,56 +49,24 @@ const Home: React.FC = () => {
           value={search}
         />
       </InputView>
-      <ModalComponent
-        modalTitle={`Desejá excluir o curso de ${courseNameModal}?`}
-        icon="trash"
-        setModal={setModal}
-        modal={modal}
-      >
-        <AlignButtons>
-          <NoButtonModal onPress={() => setModal(false)}>Não!</NoButtonModal>
-          <ButtonModal underlayColor="#ff8599" onPress={() => setModal(false)}>
-            <ButtonTextModal>Com Certeza</ButtonTextModal>
-          </ButtonModal>
-        </AlignButtons>
-      </ModalComponent>
 
-      {isHome ? (
-        <CourseListComponent
-          courses={filterCourse}
-          title="Categorias"
-          infoText={`${filterCourse.length} Curso${
-            filterCourse.length > 1 ? 's' : ''
-          }`}
-        />
-      ) : (
-        <CourseListComponent
-          courses={filterCourse}
-          title="Cursos salvos"
-          deletable
-          actionStateDeletable={setCourseModal}
-        />
-      )}
+      <CourseListComponent
+        courses={filterCourse}
+        title="Categorias"
+        infoText={`${filterCourse.length} Curso${
+          filterCourse.length > 1 ? 's' : ''
+        }`}
+      />
 
       <BottomMenu>
-        <TextMenu onPress={() => setIsHome(true)}>
-          <ButtonText active={isHome}>
-            <Icon
-              name="home"
-              color={isHome ? '#ff6680' : '#C4C4D1'}
-              size={20}
-            />{' '}
-            Home
+        <TextMenu>
+          <ButtonText active>
+            <Icon name="home" color="#ff6680" size={20} /> Home
           </ButtonText>
         </TextMenu>
-        <TextMenu onPress={() => setIsHome(false)}>
-          <ButtonText active={!isHome}>
-            <Icon
-              name="hearto"
-              color={isHome ? '#C4C4D1' : '#ff6680'}
-              size={20}
-            />{' '}
-            Salvos
+        <TextMenu onPress={() => navigate('SavedCourses')}>
+          <ButtonText>
+            <Icon name="hearto" color="#C4C4D1" size={20} /> Salvos
           </ButtonText>
         </TextMenu>
       </BottomMenu>
