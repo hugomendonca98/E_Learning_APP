@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
-import { Image } from 'react-native';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useCallback, useEffect } from 'react';
+import { Image, LogBox } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { useNavigation } from '@react-navigation/native';
 import CourseListComponent from '../../components/CourseList';
@@ -19,15 +20,38 @@ import {
 } from './styles';
 import ModalComponent from '../../components/Modal';
 import { useAuth } from '../../hooks/auth';
-import { useCourses } from '../../hooks/courses';
+import useRealm from '../../services/realmDB/schema';
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
+
+interface Courses {
+  id: string;
+  name: string;
+  image: string;
+}
 
 const SavedCourses: React.FC = () => {
   const [modal, setModal] = useState(false);
   const [search, setSearch] = useState('');
+  const [courses, setCourses] = useState<Courses[] | any>([]);
   const [courseNameModal, setCourseNameModal] = useState('');
   const { signOut } = useAuth();
   const { navigate } = useNavigation();
-  const { courses } = useCourses();
+  const realm = useRealm();
+
+  useEffect(() => {
+    async function getOfflineCourses() {
+      const realmDB = await realm;
+
+      realmDB.write(() => {
+        const offlineCourses = realmDB.objects('Course');
+        setCourses(offlineCourses);
+      });
+    }
+    getOfflineCourses();
+  }, [realm]);
 
   const setCourseModal = useCallback((courseName: string) => {
     setModal(true);
@@ -36,7 +60,7 @@ const SavedCourses: React.FC = () => {
 
   const filterCourse =
     search !== ''
-      ? courses.filter(course =>
+      ? courses.filter((course: { name: string }) =>
           course.name.toLowerCase().includes(search.toLowerCase()),
         )
       : courses;
