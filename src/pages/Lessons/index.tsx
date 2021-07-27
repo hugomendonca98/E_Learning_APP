@@ -138,7 +138,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
         <Image source={logo} />
         <AddToFavotites onPress={() => handleAddToFavorites()}>
           <AntDesignIcons
-            name={favToggle ? 'hearto' : 'heart'}
+            name={favToggle ? 'heart' : 'hearto'}
             color="#FF6680"
             size={20}
           />
