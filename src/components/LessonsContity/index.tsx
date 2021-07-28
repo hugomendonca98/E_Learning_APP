@@ -16,7 +16,6 @@ const LessonsContity = ({ id }: LessonsProps): JSX.Element => {
       const allLessons = await api.get(`/lesson/${courseId}/lessons`);
       setLessons(allLessons.data);
     }
-
     contity(id);
   }, [id]);
   return (

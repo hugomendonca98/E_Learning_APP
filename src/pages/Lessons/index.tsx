@@ -27,7 +27,7 @@ import {
 } from './styles';
 
 import { useCourses } from '../../hooks/courses';
-import useRealm from '../../services/realmDB/schema';
+import realm from '../../services/realmDB/schema';
 import { useAuth } from '../../hooks/auth';
 
 type LessonsProps = {
@@ -66,7 +66,6 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { user } = useAuth();
   const { goBack } = useNavigation();
   const { getLessons, lessons } = useCourses();
-  const realm = useRealm();
   const [favToggle, setFavToggle] = useState(false);
 
   useEffect(() => {
@@ -89,7 +88,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
     }
 
     isFavorite();
-  }, [course.id, realm]);
+  }, [course.id]);
 
   const handleAddToFavorites = useCallback(async () => {
     const realmdDB = await realm;
@@ -117,7 +116,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
       realmdDB.delete(existCourse);
     });
     setFavToggle(false);
-  }, [realm, user, course]);
+  }, [user, course]);
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);

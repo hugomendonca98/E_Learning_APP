@@ -33,7 +33,7 @@ interface CourseProps {
   infoText?: string;
   children?: ReactNode;
   deletable?: boolean;
-  actionStateDeletable?: (courseName: string) => void;
+  actionStateDeletable?: (courseName: string, courseId: string) => void;
 }
 
 const CourseListComponent: React.FC<CourseProps> = ({
@@ -66,7 +66,8 @@ const CourseListComponent: React.FC<CourseProps> = ({
                 <TrashButton>
                   <IconFeather
                     onPress={() =>
-                      actionStateDeletable && actionStateDeletable(course.name)
+                      actionStateDeletable &&
+                      actionStateDeletable(course.name, course.id)
                     }
                     name="trash"
                     color="#C4C4D1"

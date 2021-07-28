@@ -30,9 +30,7 @@ const Complete = {
   },
 };
 
-export default function useRealm(): ProgressPromise {
-  return Realm.open({
-    schema: [Course, Lesson, Complete],
-    schemaVersion: 4,
-  });
-}
+export default Realm.open({
+  schema: [Course, Lesson, Complete],
+  schemaVersion: 4,
+});
