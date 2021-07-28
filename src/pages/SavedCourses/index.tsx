@@ -22,10 +22,6 @@ import ModalComponent from '../../components/Modal';
 import { useAuth } from '../../hooks/auth';
 import useRealm from '../../services/realmDB/schema';
 
-LogBox.ignoreLogs([
-  'Non-serializable values were found in the navigation state',
-]);
-
 interface Courses {
   id: string;
   name: string;
@@ -35,7 +31,7 @@ interface Courses {
 const SavedCourses: React.FC = () => {
   const [modal, setModal] = useState(false);
   const [search, setSearch] = useState('');
-  const [courses, setCourses] = useState<Courses[] | any>([]);
+  const [courses, setCourses] = useState<Courses[]>([]);
   const [courseNameModal, setCourseNameModal] = useState('');
   const { signOut } = useAuth();
   const { navigate } = useNavigation();
@@ -47,7 +43,7 @@ const SavedCourses: React.FC = () => {
 
       realmDB.write(() => {
         const offlineCourses = realmDB.objects('Course');
-        setCourses(offlineCourses);
+        setCourses(offlineCourses.toJSON());
       });
     }
     getOfflineCourses();

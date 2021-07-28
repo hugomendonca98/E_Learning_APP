@@ -1,7 +1,8 @@
 /* eslint-disable react/require-default-props */
 /* eslint-disable camelcase */
 import { useNavigation } from '@react-navigation/native';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
+
 import IconFeather from 'react-native-vector-icons/Feather';
 
 import LessonsContity from '../LessonsContity';
@@ -55,7 +56,7 @@ const CourseListComponent: React.FC<CourseProps> = ({
         </CoursesBar>
       }
       data={courses}
-      keyExtractor={course => course.id}
+      keyExtractor={(course: CourseTypes) => course.id}
       renderItem={({ item: course }) => (
         <ButtonToLessons onPress={() => navigate('Lessons', { course })}>
           <CourseCard>
