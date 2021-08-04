@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Text } from 'react-native';
+import { useAuth } from '../../hooks/auth';
 import api from '../../services/api';
 
 type LessonsProps = {
@@ -10,14 +11,18 @@ type LessonsProps = {
 
 const LessonsContity = ({ id }: LessonsProps): JSX.Element => {
   const [lessons, setLessons] = useState([]);
+  const { token } = useAuth();
 
   useEffect(() => {
     async function contity(courseId: string) {
-      const allLessons = await api.get(`/lesson/${courseId}/lessons`);
+      const allLessons = await api.get(`/lesson/${courseId}/lessons`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       setLessons(allLessons.data);
     }
     contity(id);
-  }, [id]);
+  }, [id, token]);
   return (
     <Text>
       {lessons.length === 0

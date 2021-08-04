@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { useNavigation } from '@react-navigation/native';
@@ -21,12 +21,7 @@ import {
 import ModalComponent from '../../components/Modal';
 import { useAuth } from '../../hooks/auth';
 import realm from '../../services/realmDB/schema';
-
-interface Courses {
-  id: string;
-  name: string;
-  image: string;
-}
+import { useOffline } from '../../hooks/offline';
 
 interface ModalInfo {
   id: string;
@@ -36,21 +31,12 @@ interface ModalInfo {
 const SavedCourses: React.FC = () => {
   const [modal, setModal] = useState(false);
   const [search, setSearch] = useState('');
-  const [courses, setCourses] = useState<Courses[]>([]);
   const [courseInfoModal, setCourseInfoModal] = useState<ModalInfo>(
     {} as ModalInfo,
   );
   const { signOut } = useAuth();
   const { navigate } = useNavigation();
-
-  useEffect(() => {
-    async function getOfflineCourses() {
-      const realmDB = await realm;
-      const offlineCourses = realmDB.objects('Course');
-      setCourses(offlineCourses.toJSON());
-    }
-    getOfflineCourses();
-  }, []);
+  const { offLineCourses, setOfflineCourses } = useOffline();
 
   const setCourseModal = useCallback((courseName: string, courseId: string) => {
     setModal(true);
@@ -71,22 +57,24 @@ const SavedCourses: React.FC = () => {
             realmDB.delete(existCourse);
           });
 
-          const newCourses = courses.filter(course => course.id !== courseId);
-          setCourses(newCourses);
+          const newCourses = offLineCourses.filter(
+            course => course.id !== courseId,
+          );
+          setOfflineCourses(newCourses);
           setModal(false);
         }
       }
       removeCourse();
     },
-    [courses],
+    [offLineCourses, setOfflineCourses],
   );
 
   const filterCourse =
     search !== ''
-      ? courses.filter((course: { name: string }) =>
+      ? offLineCourses.filter((course: { name: string }) =>
           course.name.toLowerCase().includes(search.toLowerCase()),
         )
-      : courses;
+      : offLineCourses;
 
   return (
     <>

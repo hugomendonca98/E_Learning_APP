@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable camelcase */
 import React, { useEffect, useCallback, useState } from 'react';
-import { Image } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
@@ -26,9 +26,10 @@ import {
   AddToFavotites,
 } from './styles';
 
-import { useCourses } from '../../hooks/courses';
 import realm from '../../services/realmDB/schema';
 import { useAuth } from '../../hooks/auth';
+import { useOffline } from '../../hooks/offline';
+import { useCourses } from '../../hooks/courses';
 
 type LessonsProps = {
   route: {
@@ -41,6 +42,12 @@ type LessonsProps = {
     };
   };
 };
+
+interface Courses {
+  id: string;
+  name: string;
+  image: string;
+}
 
 type LessonContent = {
   id: string;
@@ -65,12 +72,15 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { course } = route.params;
   const { user } = useAuth();
   const { goBack } = useNavigation();
+  const { getOfflineLessons, lessonsOffline } = useOffline();
   const { getLessons, lessons } = useCourses();
+  const { offLineCourses, setOfflineCourses, setNewCourse } = useOffline();
   const [favToggle, setFavToggle] = useState(false);
 
   useEffect(() => {
     getLessons(course.id);
-  }, [getLessons, course.id]);
+    getOfflineLessons(course.id);
+  }, [course.id, getLessons, getOfflineLessons]);
 
   useEffect(() => {
     async function isFavorite() {
@@ -93,18 +103,34 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const handleAddToFavorites = useCallback(async () => {
     const realmdDB = await realm;
 
-    const existCourse = realmdDB
+    const existCourse: Courses[] = realmdDB
       .objects('Course')
-      .filtered(`id == '${course.id}'`);
+      .filtered(`id == '${course.id}'`)
+      .toJSON();
 
     if (existCourse.length <= 0) {
       realmdDB.write(() => {
-        realmdDB.create('Course', {
+        const newCourse = realmdDB.create('Course', {
           id: course.id,
           userId: user.id,
           name: course.name,
           image: course.image,
         });
+
+        setNewCourse([newCourse.toJSON()]);
+
+        if (lessons.length > 0) {
+          realmdDB.create('Lesson', {
+            id: lessons[0].id,
+            name: lessons[0].name,
+            duration: lessons[0].duration,
+            description: lessons[0].description,
+            video_id: lessons[0].video_id,
+            course: newCourse,
+          });
+
+          setFavToggle(true);
+        }
 
         setFavToggle(true);
       });
@@ -112,11 +138,35 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
       return;
     }
 
+    const courseToDelete = realmdDB
+      .objects('Course')
+      .filtered(`id == '${course.id}'`);
+
     realmdDB.write(() => {
-      realmdDB.delete(existCourse);
+      realmdDB.delete(courseToDelete);
     });
+
+    const newCourses = offLineCourses.filter(
+      courseDelete => courseDelete.id !== course.id,
+    );
+
+    setOfflineCourses(newCourses);
+
     setFavToggle(false);
-  }, [user, course]);
+  }, [
+    course.id,
+    course.name,
+    course.image,
+    offLineCourses,
+    setOfflineCourses,
+    user.id,
+    setNewCourse,
+    lessons,
+  ]);
+
+  const handleMarkAsDone = useCallback(() => {
+    console.log('Marcar aula como vista');
+  }, []);
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
@@ -147,45 +197,54 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
         ListHeaderComponent={
           <LessonsListHeader>
             <LessonsListHeaderTitle>
-              {lessons.length > 0 && lessons[0].course.name}
+              {lessons.length > 0
+                ? lessons[0].course.name
+                : lessonsOffline[0].course.name}
             </LessonsListHeaderTitle>
             <LessonsListHeaderText>
-              {lessons.length > 0 && `${lessons.length} Aula(s)`}
+              {lessons.length > 0
+                ? `${lessons.length} Aula(s)`
+                : `${lessonsOffline.length} Aula(s)`}
             </LessonsListHeaderText>
           </LessonsListHeader>
         }
         data={lessons}
         keyExtractor={(lesson: LessonContent) => lesson.id}
         renderItem={({ item: lesson, index }: RenderItemLesson) => (
-          <LessonCard>
-            <LessonPlay>
-              <EvilIcons
-                name="play"
-                color="#fff"
-                size={55}
-                style={{ marginTop: 11 }}
-              />
-            </LessonPlay>
-            <LessonTextContent>
-              <LessonTitle numberOfLines={2}>{lesson.name}</LessonTitle>
-              <LessonInfoContent>
-                <DurationContent>
-                  <LessonInfoText>{`Aula ${index + 1}`}</LessonInfoText>
-                  <ClockIcon>
-                    <AntDesignIcons
-                      name="clockcircleo"
-                      color="#C4C4D1"
-                      size={13}
-                    />
-                  </ClockIcon>
-                  <LessonInfoText>
-                    {formatDuration(lesson.duration)}
-                  </LessonInfoText>
-                </DurationContent>
-                <Completed>Completo!</Completed>
-              </LessonInfoContent>
-            </LessonTextContent>
-          </LessonCard>
+          <TouchableOpacity
+            onLongPress={() => handleMarkAsDone()}
+            onPress={() => console.log('Ir ara página da aula.')}
+          >
+            <LessonCard>
+              <LessonPlay>
+                <EvilIcons
+                  name="play"
+                  color="#fff"
+                  size={55}
+                  style={{ marginTop: 11 }}
+                />
+              </LessonPlay>
+              <LessonTextContent>
+                <LessonTitle numberOfLines={2}>{lesson.name}</LessonTitle>
+                <LessonInfoContent>
+                  <DurationContent>
+                    <LessonInfoText>{`Aula ${index + 1}`}</LessonInfoText>
+                    <ClockIcon>
+                      <AntDesignIcons
+                        name="clockcircleo"
+                        color="#C4C4D1"
+                        size={13}
+                      />
+                    </ClockIcon>
+                    <LessonInfoText>
+                      {formatDuration(lesson.duration)}
+                    </LessonInfoText>
+                  </DurationContent>
+                  <Completed>Completo!</Completed>
+                </LessonInfoContent>
+              </LessonTextContent>
+            </LessonCard>
+          </TouchableOpacity>
         )}
       />
     </>

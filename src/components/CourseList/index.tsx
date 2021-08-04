@@ -1,7 +1,7 @@
 /* eslint-disable react/require-default-props */
 /* eslint-disable camelcase */
 import { useNavigation } from '@react-navigation/native';
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode } from 'react';
 
 import IconFeather from 'react-native-vector-icons/Feather';
 

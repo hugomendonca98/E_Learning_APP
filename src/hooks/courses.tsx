@@ -42,41 +42,40 @@ export const CoursesContext = createContext<CoursesContextData>(
 
 // eslint-disable-next-line react/prop-types
 export const CoursesProvider: React.FC = ({ children }) => {
-  const { user, token, signOut } = useAuth();
+  const { signOut, token, loading } = useAuth();
   const [courses, setCourses] = useState<CoursesTypes[]>([]);
   const [course, setCourse] = useState('');
-  const [lessons, setLessons] = useState([]);
-  const [savedCourses, setSavedCourses] = useState<CoursesTypes[]>([]);
+  const [lessons, setLessons] = useState<LessonContent[]>([]);
 
+  /*
+   * Busca todos os cursos disponiveis.
+   * Caso a sessão do usuario tenha expirado ele vai deslogar da aplicação.
+   */
   useEffect(() => {
     async function allCourses() {
-      if (user) {
-        try {
-          const onlineCourses = await api.get(
-            '/courses' /* {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjYxMTg4MzYsImV4cCI6MTYyNjIwNTIzNiwic3ViIjoiMDcwOWRkOTEtZDYzMS00NDczLWFmN2QtZWQ2OTk0YWQzZGI0In0.nf8udpW2ekBIQ3ZMqdLoLUaoiByFwUMzIN0vIeTJTlc`,
-          },
-        } */,
-          );
-          setCourses(onlineCourses.data);
-        } catch {
+      try {
+        const onlineCourses = await api.get('/courses', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setCourses(onlineCourses.data);
+      } catch (error) {
+        if (error.response.status === 401) {
           signOut();
         }
       }
-
-      // Pegar os cursos salvos localmente, se tiver.
     }
-    allCourses();
-  }, [signOut, token, user]);
+    if (!loading) {
+      allCourses();
+    }
+  }, [loading, signOut, token]);
 
+  // Busca as aulas online, caso não encontre ele busca as aulas localmente armazenadas.
   const getLessons = useCallback(
     async (courseId: string) => {
       if (course !== courseId) {
         const { data } = await api.get(`/lesson/${courseId}/lessons`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `bearer ${token}` },
         });
         setCourse(courseId);
         setLessons(data);
@@ -86,7 +85,13 @@ export const CoursesProvider: React.FC = ({ children }) => {
   );
 
   return (
-    <CoursesContext.Provider value={{ courses, getLessons, lessons }}>
+    <CoursesContext.Provider
+      value={{
+        courses,
+        getLessons,
+        lessons,
+      }}
+    >
       {children}
     </CoursesContext.Provider>
   );
