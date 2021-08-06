@@ -68,6 +68,11 @@ interface RenderItemLesson {
   index: number;
 }
 
+type CompletedLessons = {
+  id: string;
+  name: string;
+};
+
 const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { course } = route.params;
   const { user } = useAuth();
@@ -76,6 +81,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { getLessons, lessons } = useCourses();
   const { offLineCourses, setOfflineCourses, setNewCourse } = useOffline();
   const [favToggle, setFavToggle] = useState(false);
+  const [completed, setCompleted] = useState<CompletedLessons[]>([]);
 
   useEffect(() => {
     getLessons(course.id);
@@ -108,7 +114,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
       .filtered(`id == '${course.id}'`)
       .toJSON();
 
-    if (existCourse.length <= 0) {
+    if (Array.isArray(existCourse) && existCourse.length <= 0) {
       realmdDB.write(() => {
         const newCourse = realmdDB.create('Course', {
           id: course.id,
@@ -119,7 +125,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
 
         setNewCourse([newCourse.toJSON()]);
 
-        if (lessons.length > 0) {
+        if (Array.isArray(lessons) && lessons.length > 0) {
           realmdDB.create('Lesson', {
             id: lessons[0].id,
             name: lessons[0].name,
@@ -164,9 +170,52 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
     lessons,
   ]);
 
-  const handleMarkAsDone = useCallback(() => {
-    console.log('Marcar aula como vista');
+  useEffect(() => {
+    async function getLessonsCompleted() {
+      const realmDB = await realm;
+      const lessonsCompleted = realmDB.objects('Complete').toJSON();
+      setCompleted(lessonsCompleted);
+    }
+    getLessonsCompleted();
   }, []);
+
+  const handleMarkAsDone = useCallback(
+    async (lessonId: string, lessonName: string) => {
+      const realmDB = await realm;
+
+      const existLesson = realmDB
+        .objects('Complete')
+        .filtered(`id == '${lessonId}'`);
+
+      if (
+        Array.isArray(existLesson.toJSON()) &&
+        existLesson.toJSON().length <= 0
+      ) {
+        realmDB.write(() => {
+          const newLessonCompleted = realmDB
+            .create('Complete', {
+              id: lessonId,
+              name: lessonName,
+            })
+            .toJSON();
+
+          setCompleted([...completed, newLessonCompleted]);
+        });
+
+        return;
+      }
+      realmDB.write(() => {
+        realmDB.delete(existLesson);
+
+        const newLessonsCompleted = existLesson
+          .toJSON()
+          .filter(lesson => lesson.id !== lessonId);
+
+        setCompleted(newLessonsCompleted);
+      });
+    },
+    [completed],
+  );
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
@@ -199,12 +248,12 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
             <LessonsListHeaderTitle>
               {lessons.length > 0
                 ? lessons[0].course.name
-                : lessonsOffline[0].course.name}
+                : lessonsOffline[0]?.course.name}
             </LessonsListHeaderTitle>
             <LessonsListHeaderText>
               {lessons.length > 0
                 ? `${lessons.length} Aula(s)`
-                : `${lessonsOffline.length} Aula(s)`}
+                : `${lessonsOffline?.length} Aula(s)`}
             </LessonsListHeaderText>
           </LessonsListHeader>
         }
@@ -212,7 +261,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
         keyExtractor={(lesson: LessonContent) => lesson.id}
         renderItem={({ item: lesson, index }: RenderItemLesson) => (
           <TouchableOpacity
-            onLongPress={() => handleMarkAsDone()}
+            onLongPress={() => handleMarkAsDone(lesson.id, lesson.name)}
             onPress={() => console.log('Ir ara página da aula.')}
           >
             <LessonCard>
@@ -240,7 +289,12 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
                       {formatDuration(lesson.duration)}
                     </LessonInfoText>
                   </DurationContent>
-                  <Completed>Completo!</Completed>
+                  {completed.map(
+                    lessonCompleted =>
+                      lessonCompleted.id === lesson.id && (
+                        <Completed key={lesson.id}>Completo!</Completed>
+                      ),
+                  )}
                 </LessonInfoContent>
               </LessonTextContent>
             </LessonCard>
