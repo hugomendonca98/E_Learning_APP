@@ -15,6 +15,17 @@ type CoursesTypes = {
   image: string;
 };
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+type CompletedLessons = {
+  id: string;
+  name: string;
+};
+
 type LessonContent = {
   id: string;
   name: string;
@@ -35,6 +46,12 @@ type OfflineContextData = {
   lessonsOffline: LessonContent[];
   getOfflineLessons(courseId: string): Promise<void>;
   setNewCourse: (course: CoursesTypes[]) => void;
+  favToggle: boolean;
+  isFavorite(courseId: string): Promise<void>;
+  handleAddToFavorites: (course: CoursesTypes, user: User) => Promise<void>;
+  handleMarkAsDone: (lessonId: string, lessonName: string) => Promise<void>;
+  completed: CompletedLessons[];
+  setCompleted: React.Dispatch<React.SetStateAction<CompletedLessons[]>>;
 };
 
 export const OfflineContext = createContext<OfflineContextData>(
@@ -45,6 +62,8 @@ export const OfflineContext = createContext<OfflineContextData>(
 export const OfflineProvider: React.FC = ({ children }) => {
   const [offLineCourses, setOfflineCourses] = useState<CoursesTypes[]>([]);
   const [lessons, setLessons] = useState<LessonContent[]>([]);
+  const [favToggle, setFavToggle] = useState(false);
+  const [completed, setCompleted] = useState<CompletedLessons[]>([]);
 
   // Busca os cursos salvos localmente.
   useEffect(() => {
@@ -76,6 +95,119 @@ export const OfflineProvider: React.FC = ({ children }) => {
     }
   }, []);
 
+  // Verifica se o curso já está nos favoritos, para mudar o icone.
+  async function isFavorite(courseId: string) {
+    const realmdDB = await realm;
+
+    const existCourse = realmdDB
+      .objects('Course')
+      .filtered(`id == '${courseId}'`);
+
+    if (existCourse.length <= 0) {
+      setFavToggle(false);
+    } else {
+      setFavToggle(true);
+    }
+  }
+
+  // Adiciona aos favoritos, caso já seja um favorito remove.
+  const handleAddToFavorites = useCallback(
+    async (course, user) => {
+      const realmdDB = await realm;
+
+      const existCourse: CoursesTypes[] = realmdDB
+        .objects('Course')
+        .filtered(`id == '${course.id}'`)
+        .toJSON();
+
+      if (Array.isArray(existCourse) && existCourse.length <= 0) {
+        realmdDB.write(() => {
+          const newCourse = realmdDB.create('Course', {
+            id: course.id,
+            userId: user.id,
+            name: course.name,
+            image: course.image,
+          });
+
+          setNewCourse([newCourse.toJSON()]);
+
+          if (Array.isArray(lessons) && lessons.length > 0) {
+            realmdDB.create('Lesson', {
+              id: lessons[0].id,
+              name: lessons[0].name,
+              duration: lessons[0].duration,
+              description: lessons[0].description,
+              video_id: lessons[0].video_id,
+              course: newCourse,
+            });
+
+            setFavToggle(true);
+          }
+
+          setFavToggle(true);
+        });
+
+        return;
+      }
+
+      const courseToDelete = realmdDB
+        .objects('Course')
+        .filtered(`id == '${course.id}'`);
+
+      realmdDB.write(() => {
+        realmdDB.delete(courseToDelete);
+      });
+
+      const newCourses = offLineCourses.filter(
+        courseDelete => courseDelete.id !== course.id,
+      );
+
+      setOfflineCourses(newCourses);
+
+      setFavToggle(false);
+    },
+    [offLineCourses, setOfflineCourses, setNewCourse, lessons],
+  );
+
+  // Marcar aula como concluida, caso já esteja marcada remove.
+  const handleMarkAsDone = useCallback(
+    async (lessonId: string, lessonName: string) => {
+      const realmDB = await realm;
+
+      const existLesson = realmDB
+        .objects('Complete')
+        .filtered(`id == '${lessonId}'`);
+
+      if (
+        Array.isArray(existLesson.toJSON()) &&
+        existLesson.toJSON().length <= 0
+      ) {
+        realmDB.write(() => {
+          const newLessonCompleted = realmDB
+            .create('Complete', {
+              id: lessonId,
+              name: lessonName,
+            })
+            .toJSON();
+
+          setCompleted([...completed, newLessonCompleted]);
+        });
+
+        return;
+      }
+      realmDB.write(() => {
+        realmDB.delete(existLesson);
+
+        const newLessonsCompleted = existLesson
+          .toJSON()
+          .filter(lesson => lesson.id !== lessonId);
+
+        setCompleted(newLessonsCompleted);
+      });
+    },
+    [completed],
+  );
+
   return (
     <OfflineContext.Provider
       value={{
@@ -84,6 +216,12 @@ export const OfflineProvider: React.FC = ({ children }) => {
         lessonsOffline: lessons,
         getOfflineLessons,
         setNewCourse,
+        favToggle,
+        isFavorite,
+        handleAddToFavorites,
+        handleMarkAsDone,
+        completed,
+        setCompleted,
       }}
     >
       {children}

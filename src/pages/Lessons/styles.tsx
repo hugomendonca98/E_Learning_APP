@@ -2,6 +2,10 @@ import { FlatList } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import styled from 'styled-components/native';
 
+interface PlayerProps {
+  complete?: boolean;
+}
+
 export const NavBar = styled.View`
   flex-direction: row;
   justify-content: space-between;
@@ -57,11 +61,11 @@ export const LessonCard = styled.View`
   margin-top: 20px;
 `;
 
-export const LessonPlay = styled.View`
+export const LessonPlay = styled.View<PlayerProps>`
   width: 68px;
   height: 68px;
   border-radius: 16px;
-  background-color: #61c5bd;
+  background-color: ${props => (props.complete ? '#61c5bd' : '#FF6680')};
   align-items: center;
   margin-right: -30px;
   z-index: 1000;

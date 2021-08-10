@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Home from '../pages/home/index';
+import Home from '../pages/Home/index';
 import Lessons from '../pages/Lessons';
 import SavedCourses from '../pages/SavedCourses';
 

@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable camelcase */
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Image, TouchableOpacity } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -43,12 +43,6 @@ type LessonsProps = {
   };
 };
 
-interface Courses {
-  id: string;
-  name: string;
-  image: string;
-}
-
 type LessonContent = {
   id: string;
   name: string;
@@ -68,107 +62,32 @@ interface RenderItemLesson {
   index: number;
 }
 
-type CompletedLessons = {
-  id: string;
-  name: string;
-};
-
 const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { course } = route.params;
   const { user } = useAuth();
   const { goBack } = useNavigation();
-  const { getOfflineLessons, lessonsOffline } = useOffline();
   const { getLessons, lessons } = useCourses();
-  const { offLineCourses, setOfflineCourses, setNewCourse } = useOffline();
-  const [favToggle, setFavToggle] = useState(false);
-  const [completed, setCompleted] = useState<CompletedLessons[]>([]);
+  const {
+    getOfflineLessons,
+    lessonsOffline,
+    isFavorite,
+    favToggle,
+    handleAddToFavorites,
+    setCompleted,
+    completed,
+    handleMarkAsDone,
+  } = useOffline();
 
+  // Busca as aulas, tanto online quanto offline caso exista.
   useEffect(() => {
     getLessons(course.id);
     getOfflineLessons(course.id);
   }, [course.id, getLessons, getOfflineLessons]);
 
+  // Verifica se o course em questão já é um favorito.
   useEffect(() => {
-    async function isFavorite() {
-      const realmdDB = await realm;
-
-      const existCourse = realmdDB
-        .objects('Course')
-        .filtered(`id == '${course.id}'`);
-
-      if (existCourse.length <= 0) {
-        setFavToggle(false);
-      } else {
-        setFavToggle(true);
-      }
-    }
-
-    isFavorite();
-  }, [course.id]);
-
-  const handleAddToFavorites = useCallback(async () => {
-    const realmdDB = await realm;
-
-    const existCourse: Courses[] = realmdDB
-      .objects('Course')
-      .filtered(`id == '${course.id}'`)
-      .toJSON();
-
-    if (Array.isArray(existCourse) && existCourse.length <= 0) {
-      realmdDB.write(() => {
-        const newCourse = realmdDB.create('Course', {
-          id: course.id,
-          userId: user.id,
-          name: course.name,
-          image: course.image,
-        });
-
-        setNewCourse([newCourse.toJSON()]);
-
-        if (Array.isArray(lessons) && lessons.length > 0) {
-          realmdDB.create('Lesson', {
-            id: lessons[0].id,
-            name: lessons[0].name,
-            duration: lessons[0].duration,
-            description: lessons[0].description,
-            video_id: lessons[0].video_id,
-            course: newCourse,
-          });
-
-          setFavToggle(true);
-        }
-
-        setFavToggle(true);
-      });
-
-      return;
-    }
-
-    const courseToDelete = realmdDB
-      .objects('Course')
-      .filtered(`id == '${course.id}'`);
-
-    realmdDB.write(() => {
-      realmdDB.delete(courseToDelete);
-    });
-
-    const newCourses = offLineCourses.filter(
-      courseDelete => courseDelete.id !== course.id,
-    );
-
-    setOfflineCourses(newCourses);
-
-    setFavToggle(false);
-  }, [
-    course.id,
-    course.name,
-    course.image,
-    offLineCourses,
-    setOfflineCourses,
-    user.id,
-    setNewCourse,
-    lessons,
-  ]);
+    isFavorite(course.id);
+  }, [course.id, isFavorite]);
 
   useEffect(() => {
     async function getLessonsCompleted() {
@@ -177,45 +96,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
       setCompleted(lessonsCompleted);
     }
     getLessonsCompleted();
-  }, []);
-
-  const handleMarkAsDone = useCallback(
-    async (lessonId: string, lessonName: string) => {
-      const realmDB = await realm;
-
-      const existLesson = realmDB
-        .objects('Complete')
-        .filtered(`id == '${lessonId}'`);
-
-      if (
-        Array.isArray(existLesson.toJSON()) &&
-        existLesson.toJSON().length <= 0
-      ) {
-        realmDB.write(() => {
-          const newLessonCompleted = realmDB
-            .create('Complete', {
-              id: lessonId,
-              name: lessonName,
-            })
-            .toJSON();
-
-          setCompleted([...completed, newLessonCompleted]);
-        });
-
-        return;
-      }
-      realmDB.write(() => {
-        realmDB.delete(existLesson);
-
-        const newLessonsCompleted = existLesson
-          .toJSON()
-          .filter(lesson => lesson.id !== lessonId);
-
-        setCompleted(newLessonsCompleted);
-      });
-    },
-    [completed],
-  );
+  }, [setCompleted]);
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
@@ -234,7 +115,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
           onPress={() => goBack()}
         />
         <Image source={logo} />
-        <AddToFavotites onPress={() => handleAddToFavorites()}>
+        <AddToFavotites onPress={() => handleAddToFavorites(course, user)}>
           <AntDesignIcons
             name={favToggle ? 'heart' : 'hearto'}
             color="#FF6680"
@@ -265,14 +146,31 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
             onPress={() => console.log('Ir ara página da aula.')}
           >
             <LessonCard>
-              <LessonPlay>
-                <EvilIcons
-                  name="play"
-                  color="#fff"
-                  size={55}
-                  style={{ marginTop: 11 }}
-                />
-              </LessonPlay>
+              {completed.length > 0 ? (
+                completed.map(
+                  lessonCompleted =>
+                    lessonCompleted.id === lesson.id && (
+                      <LessonPlay key={lesson.id} complete>
+                        <EvilIcons
+                          name="play"
+                          color="#fff"
+                          size={55}
+                          style={{ marginTop: 11 }}
+                        />
+                      </LessonPlay>
+                    ),
+                )
+              ) : (
+                <LessonPlay key={lesson.id} complete={false}>
+                  <EvilIcons
+                    name="play"
+                    color="#fff"
+                    size={55}
+                    style={{ marginTop: 11 }}
+                  />
+                </LessonPlay>
+              )}
+
               <LessonTextContent>
                 <LessonTitle numberOfLines={2}>{lesson.name}</LessonTitle>
                 <LessonInfoContent>
