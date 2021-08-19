@@ -52,6 +52,7 @@ type OfflineContextData = {
   handleMarkAsDone: (lessonId: string, lessonName: string) => Promise<void>;
   completed: CompletedLessons[];
   setCompleted: React.Dispatch<React.SetStateAction<CompletedLessons[]>>;
+  getLessonsCompleted(): Promise<void>;
 };
 
 export const OfflineContext = createContext<OfflineContextData>(
@@ -83,6 +84,13 @@ export const OfflineProvider: React.FC = ({ children }) => {
     },
     [offLineCourses],
   );
+
+  // Busca as aulas completadas.
+  async function getLessonsCompleted() {
+    const realmDB = await realm;
+    const lessonsCompleted = realmDB.objects('Complete').toJSON();
+    setCompleted(lessonsCompleted);
+  }
 
   // Busca as aulas offline de um determinado curso.
   const getOfflineLessons = useCallback(async (courseId: string) => {
@@ -222,6 +230,7 @@ export const OfflineProvider: React.FC = ({ children }) => {
         handleMarkAsDone,
         completed,
         setCompleted,
+        getLessonsCompleted,
       }}
     >
       {children}

@@ -24,6 +24,8 @@
     "react-native-safe-area-view": "^1.1.1",
     "react-native-screens": "^3.3.0",
     "react-native-vector-icons": "^8.1.0",
+    "react-native-webview": "^11.13.0",
+    "react-native-youtube-iframe": "^2.1.2",
     "realm": "^10.6.0",
     "styled-components": "^5.3.0",
     "yup": "^0.32.9"

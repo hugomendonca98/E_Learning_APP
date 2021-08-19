@@ -6,16 +6,6 @@ interface PlayerProps {
   complete?: boolean;
 }
 
-export const NavBar = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 10px;
-  padding-left: 24px;
-  padding-right: 24px;
-`;
-
-export const AddToFavotites = styled(RectButton)``;
-
 export const LessonsList = styled(FlatList as new () => FlatList).attrs({
   contentContainerStyle: {
     paddingBottom: 25,

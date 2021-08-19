@@ -1,13 +1,11 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable camelcase */
 import React, { useEffect } from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import { useNavigation } from '@react-navigation/native';
-import logo from '../../assets/logo.png';
 import {
   LessonPlay,
   LessonCard,
@@ -15,7 +13,6 @@ import {
   LessonsListHeader,
   LessonsListHeaderText,
   LessonsListHeaderTitle,
-  NavBar,
   LessonTextContent,
   LessonTitle,
   LessonInfoContent,
@@ -23,13 +20,13 @@ import {
   ClockIcon,
   DurationContent,
   Completed,
-  AddToFavotites,
 } from './styles';
 
 import realm from '../../services/realmDB/schema';
 import { useAuth } from '../../hooks/auth';
 import { useOffline } from '../../hooks/offline';
 import { useCourses } from '../../hooks/courses';
+import NavbarLessons from '../../components/NavbarLessons';
 
 type LessonsProps = {
   route: {
@@ -65,14 +62,12 @@ interface RenderItemLesson {
 const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { course } = route.params;
   const { user } = useAuth();
-  const { goBack } = useNavigation();
+  const { navigate } = useNavigation();
   const { getLessons, lessons } = useCourses();
   const {
     getOfflineLessons,
     lessonsOffline,
     isFavorite,
-    favToggle,
-    handleAddToFavorites,
     setCompleted,
     completed,
     handleMarkAsDone,
@@ -107,22 +102,7 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
 
   return (
     <>
-      <NavBar>
-        <MaterialIcons
-          name="arrow-back"
-          color="#FF6680"
-          size={25}
-          onPress={() => goBack()}
-        />
-        <Image source={logo} />
-        <AddToFavotites onPress={() => handleAddToFavorites(course, user)}>
-          <AntDesignIcons
-            name={favToggle ? 'heart' : 'hearto'}
-            color="#FF6680"
-            size={20}
-          />
-        </AddToFavotites>
-      </NavBar>
+      <NavbarLessons course={course} user={user} />
       <LessonsList
         ListHeaderComponent={
           <LessonsListHeader>
@@ -138,12 +118,14 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
             </LessonsListHeaderText>
           </LessonsListHeader>
         }
-        data={lessons}
+        data={lessons.length > 0 ? lessons : lessonsOffline}
         keyExtractor={(lesson: LessonContent) => lesson.id}
         renderItem={({ item: lesson, index }: RenderItemLesson) => (
           <TouchableOpacity
             onLongPress={() => handleMarkAsDone(lesson.id, lesson.name)}
-            onPress={() => console.log('Ir ara página da aula.')}
+            onPress={() =>
+              navigate('Lesson', { lessons, lesson, course, user })
+            }
           >
             <LessonCard>
               {completed.length > 0 ? (
