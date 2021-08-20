@@ -1,22 +1,28 @@
 /* eslint-disable camelcase */
-import React from 'react';
-import { View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text } from 'react-native';
 
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
-import { ScrollView } from 'react-native-gesture-handler';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import LessonsContity from '../../components/LessonsContity';
 
 import NavbarLessons from '../../components/NavbarLessons';
+import { useOffline } from '../../hooks/offline';
 import {
+  BackLesson,
+  BackLessonText,
   ClockIcon,
   DescriptionText,
   InfoView,
+  LessonMenu,
   LessonScrollView,
   LessonTextContent,
   LessonTextIcon,
   LessonTextInfo,
   LessonTitle,
+  MenuArea,
+  MenuIcon,
+  NextLesson,
+  NextLessonText,
   VideoView,
 } from './styles';
 
@@ -55,6 +61,29 @@ type LessonProps = {
 
 const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
   const { course, user, lessons, lesson } = route.params;
+  const { handleMarkAsDone, getLessonsCompleted, completed } = useOffline();
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    getLessonsCompleted();
+  }, [getLessonsCompleted]);
+
+  // Controla o estado do player, quando a aula acabar marca a aula como completa.
+  const onStateChange = (state: string) => {
+    if (state === 'ended') {
+      const lessonCompleted = completed.filter(
+        filterLesson => filterLesson.id === lesson.id,
+      );
+      if (Array.isArray(lessonCompleted) && lessonCompleted.length <= 0) {
+        handleMarkAsDone(lesson.id, lesson.name);
+        setPlaying(false);
+      }
+      setPlaying(false);
+    }
+    if (state !== 'playing') {
+      setPlaying(false);
+    }
+  };
 
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
@@ -67,7 +96,12 @@ const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
       <NavbarLessons course={course} user={user} />
       <LessonScrollView>
         <VideoView>
-          <YoutubeIframe height={300} videoId={lesson.video_id} />
+          <YoutubeIframe
+            height={300}
+            videoId={lesson.video_id}
+            play={playing}
+            onChangeState={onStateChange}
+          />
         </VideoView>
         <LessonTextContent>
           <LessonTitle>{lesson.name}</LessonTitle>
@@ -93,6 +127,22 @@ const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
           <DescriptionText>{lesson.description}</DescriptionText>
         </LessonTextContent>
       </LessonScrollView>
+      <MenuArea>
+        <LessonMenu>
+          <BackLesson>
+            <MenuIcon>
+              <AntDesignIcons name="arrowleft" color="#ff6680" size={13} />
+            </MenuIcon>
+            <BackLessonText>Aula anterior</BackLessonText>
+          </BackLesson>
+          <NextLesson>
+            <NextLessonText>Próxima aula</NextLessonText>
+            <MenuIcon>
+              <AntDesignIcons name="arrowright" color="#fff" size={13} />
+            </MenuIcon>
+          </NextLesson>
+        </LessonMenu>
+      </MenuArea>
     </>
   );
 };
