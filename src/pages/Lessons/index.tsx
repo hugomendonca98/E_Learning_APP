@@ -129,21 +129,29 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
           >
             <LessonCard>
               {completed.length > 0 ? (
-                completed.map(
-                  lessonCompleted =>
-                    lessonCompleted.id === lesson.id && (
-                      <LessonPlay key={lesson.id} complete>
-                        <EvilIcons
-                          name="play"
-                          color="#fff"
-                          size={55}
-                          style={{ marginTop: 11 }}
-                        />
-                      </LessonPlay>
-                    ),
+                completed.map(lessonCompleted =>
+                  lesson.id === lessonCompleted.id ? (
+                    <LessonPlay key={lesson.id} complete>
+                      <EvilIcons
+                        name="play"
+                        color="#fff"
+                        size={55}
+                        style={{ marginTop: 11 }}
+                      />
+                    </LessonPlay>
+                  ) : (
+                    <LessonPlay key={lesson.id}>
+                      <EvilIcons
+                        name="play"
+                        color="#fff"
+                        size={55}
+                        style={{ marginTop: 11 }}
+                      />
+                    </LessonPlay>
+                  ),
                 )
               ) : (
-                <LessonPlay key={lesson.id} complete={false}>
+                <LessonPlay key={lesson.id}>
                   <EvilIcons
                     name="play"
                     color="#fff"
