@@ -7,13 +7,13 @@ import React, {
   useCallback,
 } from 'react';
 
-import realm from '../services/realmDB/schema';
+import getRealm from '../services/realmDB/schema';
 
-type CoursesTypes = {
+interface CoursesTypes {
   id: string;
   name: string;
   image: string;
-};
+}
 
 interface User {
   id: string;
@@ -21,12 +21,12 @@ interface User {
   email: string;
 }
 
-type CompletedLessons = {
+interface CompletedLessons {
   id: string;
   name: string;
-};
+}
 
-type LessonContent = {
+interface LessonContent {
   id: string;
   name: string;
   duration: number;
@@ -38,9 +38,9 @@ type LessonContent = {
     name: string;
     image: string;
   };
-};
+}
 
-type OfflineContextData = {
+interface OfflineContextData {
   offLineCourses: CoursesTypes[];
   setOfflineCourses: React.Dispatch<React.SetStateAction<CoursesTypes[]>>;
   lessonsOffline: LessonContent[];
@@ -53,7 +53,7 @@ type OfflineContextData = {
   completed: CompletedLessons[];
   setCompleted: React.Dispatch<React.SetStateAction<CompletedLessons[]>>;
   getLessonsCompleted(): Promise<void>;
-};
+}
 
 export const OfflineContext = createContext<OfflineContextData>(
   {} as OfflineContextData,
@@ -69,8 +69,8 @@ export const OfflineProvider: React.FC = ({ children }) => {
   // Busca os cursos salvos localmente.
   useEffect(() => {
     async function getOfflineCourses() {
-      const realmDB = await realm;
-      const data = realmDB.objects('Course');
+      const realm = await getRealm();
+      const data = realm.objects('Course');
       setOfflineCourses(data.toJSON());
     }
 
@@ -87,15 +87,15 @@ export const OfflineProvider: React.FC = ({ children }) => {
 
   // Busca as aulas completadas.
   async function getLessonsCompleted() {
-    const realmDB = await realm;
-    const lessonsCompleted = realmDB.objects('Complete').toJSON();
+    const realm = await getRealm();
+    const lessonsCompleted = realm.objects('Complete').toJSON();
     setCompleted(lessonsCompleted);
   }
 
   // Busca as aulas offline de um determinado curso.
   const getOfflineLessons = useCallback(async (courseId: string) => {
-    const realmDB = await realm;
-    const existLessonOffiline = realmDB
+    const realm = await getRealm();
+    const existLessonOffiline = realm
       .objects('Lesson')
       .filtered(`course.id == '${courseId}'`);
     if (existLessonOffiline) {
@@ -105,11 +105,9 @@ export const OfflineProvider: React.FC = ({ children }) => {
 
   // Verifica se o curso já está nos favoritos, para mudar o icone.
   async function isFavorite(courseId: string) {
-    const realmdDB = await realm;
+    const realm = await getRealm();
 
-    const existCourse = realmdDB
-      .objects('Course')
-      .filtered(`id == '${courseId}'`);
+    const existCourse = realm.objects('Course').filtered(`id == '${courseId}'`);
 
     if (existCourse.length <= 0) {
       setFavToggle(false);
@@ -121,16 +119,16 @@ export const OfflineProvider: React.FC = ({ children }) => {
   // Adiciona aos favoritos, caso já seja um favorito remove.
   const handleAddToFavorites = useCallback(
     async (course, user) => {
-      const realmdDB = await realm;
+      const realm = await getRealm();
 
-      const existCourse: CoursesTypes[] = realmdDB
+      const existCourse: CoursesTypes[] = realm
         .objects('Course')
         .filtered(`id == '${course.id}'`)
         .toJSON();
 
       if (Array.isArray(existCourse) && existCourse.length <= 0) {
-        realmdDB.write(() => {
-          const newCourse = realmdDB.create('Course', {
+        realm.write(() => {
+          const newCourse = realm.create('Course', {
             id: course.id,
             userId: user.id,
             name: course.name,
@@ -140,7 +138,7 @@ export const OfflineProvider: React.FC = ({ children }) => {
           setNewCourse([newCourse.toJSON()]);
 
           if (Array.isArray(lessons) && lessons.length > 0) {
-            realmdDB.create('Lesson', {
+            realm.create('Lesson', {
               id: lessons[0].id,
               name: lessons[0].name,
               duration: lessons[0].duration,
@@ -158,12 +156,12 @@ export const OfflineProvider: React.FC = ({ children }) => {
         return;
       }
 
-      const courseToDelete = realmdDB
+      const courseToDelete = realm
         .objects('Course')
         .filtered(`id == '${course.id}'`);
 
-      realmdDB.write(() => {
-        realmdDB.delete(courseToDelete);
+      realm.write(() => {
+        realm.delete(courseToDelete);
       });
 
       const newCourses = offLineCourses.filter(
@@ -180,9 +178,9 @@ export const OfflineProvider: React.FC = ({ children }) => {
   // Marcar aula como concluida, caso já esteja marcada remove.
   const handleMarkAsDone = useCallback(
     async (lessonId: string, lessonName: string) => {
-      const realmDB = await realm;
+      const realm = await getRealm();
 
-      const existLesson = realmDB
+      const existLesson = realm
         .objects('Complete')
         .filtered(`id == '${lessonId}'`);
 
@@ -190,8 +188,8 @@ export const OfflineProvider: React.FC = ({ children }) => {
         Array.isArray(existLesson.toJSON()) &&
         existLesson.toJSON().length <= 0
       ) {
-        realmDB.write(() => {
-          const newLessonCompleted = realmDB
+        realm.write(() => {
+          const newLessonCompleted = realm
             .create('Complete', {
               id: lessonId,
               name: lessonName,
@@ -203,12 +201,12 @@ export const OfflineProvider: React.FC = ({ children }) => {
 
         return;
       }
-      realmDB.write(() => {
-        realmDB.delete(existLesson);
+      realm.write(() => {
+        realm.delete(existLesson);
 
-        const newLessonsCompleted = existLesson
-          .toJSON()
-          .filter(lesson => lesson.id !== lessonId);
+        const newLessonsCompleted: CompletedLessons[] = completed.filter(
+          lesson => lesson.id !== lessonId,
+        );
 
         setCompleted(newLessonsCompleted);
       });

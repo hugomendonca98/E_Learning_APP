@@ -29,8 +29,10 @@ const Complete = {
     name: 'string',
   },
 };
-
-export default Realm.open({
-  schema: [Course, Lesson, Complete],
-  schemaVersion: 4,
-});
+export default function getRealm(): ProgressPromise {
+  // eslint-disable-next-line no-return-await
+  return Realm.open({
+    schema: [Course, Lesson, Complete],
+    schemaVersion: 4,
+  });
+}

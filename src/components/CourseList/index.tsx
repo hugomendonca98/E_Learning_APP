@@ -21,11 +21,11 @@ import {
   TrashButton,
 } from './styles';
 
-type CourseTypes = {
+interface CourseTypes {
   id: string;
   name: string;
   image: string;
-};
+}
 
 interface CourseProps {
   courses: CourseTypes[];

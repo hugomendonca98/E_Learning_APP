@@ -10,13 +10,13 @@ import React, {
 import api from '../services/api';
 import { useAuth } from './auth';
 
-type CoursesTypes = {
+interface CoursesTypes {
   id: string;
   name: string;
   image: string;
-};
+}
 
-type LessonContent = {
+interface LessonContent {
   id: string;
   name: string;
   duration: number;
@@ -28,13 +28,13 @@ type LessonContent = {
     name: string;
     image: string;
   };
-};
+}
 
-type CoursesContextData = {
+interface CoursesContextData {
   courses: CoursesTypes[];
   lessons: LessonContent[];
   getLessons(courseId: string): Promise<void>;
-};
+}
 
 export const CoursesContext = createContext<CoursesContextData>(
   {} as CoursesContextData,

@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 import React, { useState, useEffect } from 'react';
-import { Text } from 'react-native';
 
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import YoutubeIframe from 'react-native-youtube-iframe';
@@ -26,7 +25,7 @@ import {
   VideoView,
 } from './styles';
 
-type LessonContent = {
+interface LessonContent {
   id: string;
   name: string;
   duration: number;
@@ -38,9 +37,9 @@ type LessonContent = {
     name: string;
     image: string;
   };
-};
+}
 
-type LessonProps = {
+interface LessonProps {
   route: {
     params: {
       course: {
@@ -57,7 +56,7 @@ type LessonProps = {
       lesson: LessonContent;
     };
   };
-};
+}
 
 const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
   const { course, user, lessons, lesson } = route.params;

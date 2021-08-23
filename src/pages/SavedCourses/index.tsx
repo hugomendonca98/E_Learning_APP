@@ -20,7 +20,7 @@ import {
 } from './styles';
 import ModalComponent from '../../components/Modal';
 import { useAuth } from '../../hooks/auth';
-import realm from '../../services/realmDB/schema';
+import getRealm from '../../services/realmDB/schema';
 import { useOffline } from '../../hooks/offline';
 
 interface ModalInfo {
@@ -46,15 +46,15 @@ const SavedCourses: React.FC = () => {
   const handleDeleteCourse = useCallback(
     (courseId: string) => {
       async function removeCourse() {
-        const realmDB = await realm;
+        const realm = await getRealm();
 
-        const existCourse = realmDB
+        const existCourse = realm
           .objects('Course')
           .filtered(`id == '${courseId}'`);
 
         if (existCourse.length > 0) {
-          realmDB.write(() => {
-            realmDB.delete(existCourse);
+          realm.write(() => {
+            realm.delete(existCourse);
           });
 
           const newCourses = offLineCourses.filter(

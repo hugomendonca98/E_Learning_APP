@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Image } from 'react-native';
+import { Image } from 'react-native';
 
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -17,10 +17,10 @@ import logo from '../../assets/logo.png';
 import { useAuth } from '../../hooks/auth';
 import ModalComponent from '../../components/Modal';
 
-type ValuesSign = {
+interface ValuesSign {
   email: string;
   password: string;
-};
+}
 
 const signInSchema = Yup.object().shape({
   email: Yup.string().email('Email Invalido.').required('Campo obrigatório.'),
@@ -37,13 +37,8 @@ const SignInPage: React.FC = () => {
         await signIn({ email: values.email, password: values.password });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
-          console.log(err);
+          return;
         }
-
-        /** Alert.alert(
-          'Erro na autenticação',
-          'Ocorreu um erro ao fazer o login, tente novamente.',
-        ); */
 
         setModal(true);
       }
@@ -73,11 +68,7 @@ const SignInPage: React.FC = () => {
           initialValues={{ email: '', password: '' }}
           validationSchema={signInSchema}
           onSubmit={values => {
-            try {
-              handleSubmitForm(values);
-            } catch (error) {
-              console.log(error);
-            }
+            handleSubmitForm(values);
           }}
         >
           {({

@@ -12,14 +12,14 @@ import {
   TextModalMessage,
 } from './styles';
 
-type ModalProps = {
+interface ModalProps {
   modalTitle: string;
   modalMessage?: string | undefined;
   children: ReactNode;
   modal: boolean;
   icon?: string;
   setModal: React.Dispatch<React.SetStateAction<boolean>>;
-};
+}
 
 const ModalComponent: React.FC<ModalProps> = ({
   modalTitle,

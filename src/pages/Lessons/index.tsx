@@ -22,13 +22,13 @@ import {
   Completed,
 } from './styles';
 
-import realm from '../../services/realmDB/schema';
+import getRealm from '../../services/realmDB/schema';
 import { useAuth } from '../../hooks/auth';
 import { useOffline } from '../../hooks/offline';
 import { useCourses } from '../../hooks/courses';
 import NavbarLessons from '../../components/NavbarLessons';
 
-type LessonsProps = {
+interface LessonsProps {
   route: {
     params: {
       course: {
@@ -38,9 +38,9 @@ type LessonsProps = {
       };
     };
   };
-};
+}
 
-type LessonContent = {
+interface LessonContent {
   id: string;
   name: string;
   duration: number;
@@ -52,7 +52,7 @@ type LessonContent = {
     name: string;
     image: string;
   };
-};
+}
 
 interface RenderItemLesson {
   item: LessonContent;
@@ -64,13 +64,14 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
   const { user } = useAuth();
   const { navigate } = useNavigation();
   const { getLessons, lessons } = useCourses();
+
   const {
     getOfflineLessons,
     lessonsOffline,
     isFavorite,
-    setCompleted,
     completed,
     handleMarkAsDone,
+    setCompleted,
   } = useOffline();
 
   // Busca as aulas, tanto online quanto offline caso exista.
@@ -86,8 +87,9 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
 
   useEffect(() => {
     async function getLessonsCompleted() {
-      const realmDB = await realm;
-      const lessonsCompleted = realmDB.objects('Complete').toJSON();
+      const realm = await getRealm();
+      const lessonsCompleted = realm.objects('Complete').toJSON();
+
       setCompleted(lessonsCompleted);
     }
     getLessonsCompleted();
@@ -128,38 +130,20 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
             }
           >
             <LessonCard>
-              {completed.length > 0 ? (
-                completed.map(lessonCompleted =>
-                  lesson.id === lessonCompleted.id ? (
-                    <LessonPlay key={lesson.id} complete>
-                      <EvilIcons
-                        name="play"
-                        color="#fff"
-                        size={55}
-                        style={{ marginTop: 11 }}
-                      />
-                    </LessonPlay>
-                  ) : (
-                    <LessonPlay key={lesson.id}>
-                      <EvilIcons
-                        name="play"
-                        color="#fff"
-                        size={55}
-                        style={{ marginTop: 11 }}
-                      />
-                    </LessonPlay>
-                  ),
-                )
-              ) : (
-                <LessonPlay key={lesson.id}>
-                  <EvilIcons
-                    name="play"
-                    color="#fff"
-                    size={55}
-                    style={{ marginTop: 11 }}
-                  />
-                </LessonPlay>
-              )}
+              <LessonPlay
+                complete={
+                  !!completed.find(
+                    lessonCompleted => lessonCompleted.id === lesson.id,
+                  )
+                }
+              >
+                <EvilIcons
+                  name="play"
+                  color="#fff"
+                  size={55}
+                  style={{ marginTop: 11 }}
+                />
+              </LessonPlay>
 
               <LessonTextContent>
                 <LessonTitle numberOfLines={2}>{lesson.name}</LessonTitle>

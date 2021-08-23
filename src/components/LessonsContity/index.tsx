@@ -5,9 +5,9 @@ import { Text } from 'react-native';
 import { useAuth } from '../../hooks/auth';
 import api from '../../services/api';
 
-type LessonsProps = {
+interface LessonsProps {
   id: string;
-};
+}
 
 const LessonsContity = ({ id }: LessonsProps): JSX.Element => {
   const [lessons, setLessons] = useState([]);
