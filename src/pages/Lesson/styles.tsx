@@ -48,6 +48,19 @@ export const LessonTextIcon = styled.View`
   margin-left: 10px;
 `;
 
+export const LessonCompleted = styled.Text`
+  font-family: 'Roboto-Regular';
+  background-color: #61c5bd;
+  font-size: 10px;
+  color: #fff;
+  padding: 10px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-radius: 12px;
+  margin-top: 18px;
+  margin-left: 10px;
+`;
+
 export const ClockIcon = styled.View`
   margin-right: 5px;
 `;

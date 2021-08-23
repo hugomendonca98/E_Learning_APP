@@ -1,17 +1,20 @@
 /* eslint-disable camelcase */
 import React, { useState, useEffect } from 'react';
+import { Alert } from 'react-native';
 
 import AntDesignIcons from 'react-native-vector-icons/AntDesign';
 import YoutubeIframe from 'react-native-youtube-iframe';
 
 import NavbarLessons from '../../components/NavbarLessons';
 import { useOffline } from '../../hooks/offline';
+import getRealm from '../../services/realmDB/schema';
 import {
   BackLesson,
   BackLessonText,
   ClockIcon,
   DescriptionText,
   InfoView,
+  LessonCompleted,
   LessonMenu,
   LessonScrollView,
   LessonTextContent,
@@ -60,21 +63,28 @@ interface LessonProps {
 
 const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
   const { course, user, lessons, lesson } = route.params;
-  const { handleMarkAsDone, getLessonsCompleted, completed } = useOffline();
+  const { handleMarkAsDone, setCompleted, completed } = useOffline();
   const [playing, setPlaying] = useState(false);
+  const [lessonController, setLessonController] = useState({} as LessonContent);
 
   useEffect(() => {
+    async function getLessonsCompleted() {
+      const realm = await getRealm();
+      const lessonsCompleted = realm.objects('Complete').toJSON();
+
+      setCompleted(lessonsCompleted);
+    }
     getLessonsCompleted();
-  }, [getLessonsCompleted]);
+  }, [setCompleted]);
 
   // Controla o estado do player, quando a aula acabar marca a aula como completa.
   const onStateChange = (state: string) => {
     if (state === 'ended') {
       const lessonCompleted = completed.filter(
-        filterLesson => filterLesson.id === lesson.id,
+        filterLesson => filterLesson.id === lessonController.id,
       );
       if (Array.isArray(lessonCompleted) && lessonCompleted.length <= 0) {
-        handleMarkAsDone(lesson.id, lesson.name);
+        handleMarkAsDone(lessonController.id, lessonController.name);
         setPlaying(false);
       }
       setPlaying(false);
@@ -84,12 +94,35 @@ const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
     }
   };
 
+  useEffect(() => {
+    setLessonController(lesson);
+  }, [lesson]);
+
+  // Navega para próxima aula caso ela exista.
+  const handleNextLesson = () => {
+    const findNextLesson = lessons.indexOf(lessonController);
+    if (findNextLesson !== lessons.length - 1) {
+      const nextLesson = lessons[findNextLesson + 1];
+      setLessonController(nextLesson);
+    }
+  };
+
+  // Navega para aula anterior caso ela exista.
+  const handleBackLesson = () => {
+    const findNextLesson = lessons.indexOf(lessonController);
+    if (findNextLesson !== 0) {
+      const nextLesson = lessons[findNextLesson - 1];
+      setLessonController(nextLesson);
+    }
+  };
+
   const formatDuration = (time: number) => {
     const measuredTime = new Date(2021, 5, 17, -3);
     measuredTime.setSeconds(time);
     const MHSTime = measuredTime.toISOString().substr(11, 8);
     return MHSTime;
   };
+
   return (
     <>
       <NavbarLessons course={course} user={user} />
@@ -97,16 +130,17 @@ const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
         <VideoView>
           <YoutubeIframe
             height={300}
-            videoId={lesson.video_id}
+            videoId={lessonController.video_id}
             play={playing}
             onChangeState={onStateChange}
+            onError={err => Alert.alert(err)}
           />
         </VideoView>
         <LessonTextContent>
-          <LessonTitle>{lesson.name}</LessonTitle>
+          <LessonTitle>{lessonController.name}</LessonTitle>
           <InfoView>
             <LessonTextInfo>
-              {`Aula ${lessons.indexOf(lesson) + 1}`}
+              {`Aula ${lessons.indexOf(lessonController) + 1}`}
             </LessonTextInfo>
             <LessonTextIcon>
               <LessonTextInfo>
@@ -121,20 +155,23 @@ const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
               <LessonTextInfo>
                 {`${formatDuration(lesson.duration)}`}
               </LessonTextInfo>
+              {!!completed.find(
+                filterLesson => filterLesson.id === lessonController.id,
+              ) && <LessonCompleted>Completo!</LessonCompleted>}
             </LessonTextIcon>
           </InfoView>
-          <DescriptionText>{lesson.description}</DescriptionText>
+          <DescriptionText>{lessonController.description}</DescriptionText>
         </LessonTextContent>
       </LessonScrollView>
       <MenuArea>
         <LessonMenu>
-          <BackLesson>
+          <BackLesson onPress={() => handleBackLesson()}>
             <MenuIcon>
               <AntDesignIcons name="arrowleft" color="#ff6680" size={13} />
             </MenuIcon>
             <BackLessonText>Aula anterior</BackLessonText>
           </BackLesson>
-          <NextLesson>
+          <NextLesson onPress={() => handleNextLesson()}>
             <NextLessonText>Próxima aula</NextLessonText>
             <MenuIcon>
               <AntDesignIcons name="arrowright" color="#fff" size={13} />
