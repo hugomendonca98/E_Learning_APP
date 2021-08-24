@@ -38,9 +38,9 @@ Para iniciá-lo, siga os passos abaixo:
 $ yarn
 
 # Iniciar o projeto
+$ yarn run android
 $ yarn start
 ```
-O app estará disponível no seu browser pelo endereço http://localhost:3000.
 
 Lembrando que será necessário usar o backend em nodejs [E_Learning_API](https://github.com/hugomendonca98/E_Learning_API)
 
