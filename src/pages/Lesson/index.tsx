@@ -67,6 +67,7 @@ const Lesson: React.FC<LessonProps> = ({ route }: LessonProps): JSX.Element => {
   const [playing, setPlaying] = useState(false);
   const [lessonController, setLessonController] = useState({} as LessonContent);
 
+  // Busca todas as aulas que já foram completadas.
   useEffect(() => {
     async function getLessonsCompleted() {
       const realm = await getRealm();

@@ -161,12 +161,9 @@ const Lessons: React.FC<LessonsProps> = ({ route }: LessonsProps) => {
                       {formatDuration(lesson.duration)}
                     </LessonInfoText>
                   </DurationContent>
-                  {completed.map(
-                    lessonCompleted =>
-                      lessonCompleted.id === lesson.id && (
-                        <Completed key={lesson.id}>Completo!</Completed>
-                      ),
-                  )}
+                  {!!completed.find(
+                    filterLesson => filterLesson.id === lesson.id,
+                  ) && <Completed key={lesson.id}>Completo!</Completed>}
                 </LessonInfoContent>
               </LessonTextContent>
             </LessonCard>
